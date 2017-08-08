@@ -1,0 +1,18 @@
+﻿  main.cpp
+  MGRenderer.cpp
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(40): warning C4018: “<”: 有符号/无符号不匹配
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(44): warning C4554: “&”: 检查运算符优先级可能存在的错误；使用圆括号阐明优先级
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(60): warning C4018: “<”: 有符号/无符号不匹配
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(165): warning C4018: “<”: 有符号/无符号不匹配
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(286): warning C4838: 从“int”转换到“uint32_t”需要收缩转换
+  正在生成代码...
+  正在编译...
+  MGWindow_win32.cpp
+  MGWindow_glfw.cpp
+  MGInstance.cpp
+d:\c++projects\magnetkernel\magnetkernel\mginstance.cpp(87): warning C4018: “<”: 有符号/无符号不匹配
+d:\c++projects\magnetkernel\magnetkernel\mginstance.cpp(119): warning C4554: “&”: 检查运算符优先级可能存在的错误；使用圆括号阐明优先级
+  MGDebug.cpp
+  正在生成代码...
+  MagnetKernel.vcxproj -> D:\C++Projects\MagnetKernel\Debug\MagnetKernel.exe
+  MagnetKernel.vcxproj -> D:\C++Projects\MagnetKernel\Debug\MagnetKernel.pdb (Partial PDB)

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\SuperHeader">
+      <UniqueIdentifier>{2f5f4e0e-8b75-4b7d-a42a-2d86bd5ed6d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Share">
+      <UniqueIdentifier>{e2944836-436b-4868-b428-69147b75d6d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Share">
+      <UniqueIdentifier>{9a2f53b2-de9b-4342-bd46-3ebbc4dc61df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Kernel">
+      <UniqueIdentifier>{ae7c57af-5281-4382-9580-7d6a816cd528}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Kernel">
+      <UniqueIdentifier>{7caf2b40-1f70-4716-8ceb-036f0e56abfb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MGDebug.cpp">
+      <Filter>源文件\Share</Filter>
+    </ClCompile>
+    <ClCompile Include="MGInstance.cpp">
+      <Filter>源文件\Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="MGWindow_win32.cpp">
+      <Filter>源文件\Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="MGWindow_glfw.cpp">
+      <Filter>源文件\Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="MGRenderer.cpp">
+      <Filter>源文件\Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="MGWindow_Share.cpp">
+      <Filter>源文件\Kernel</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BUILD_OPTIONS.h">
+      <Filter>头文件\SuperHeader</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform.h">
+      <Filter>头文件\SuperHeader</Filter>
+    </ClInclude>
+    <ClInclude Include="MGDebug.h">
+      <Filter>头文件\Share</Filter>
+    </ClInclude>
+    <ClInclude Include="MGMath.h">
+      <Filter>头文件\Share</Filter>
+    </ClInclude>
+    <ClInclude Include="MGInstance.h">
+      <Filter>头文件\Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="MGWindow.h">
+      <Filter>头文件\Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="MGRenderer.h">
+      <Filter>头文件\Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="MGImageFunctions.h">
+      <Filter>头文件\Kernel</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
