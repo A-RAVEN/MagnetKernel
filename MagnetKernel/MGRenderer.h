@@ -52,6 +52,16 @@ private:
 	void _initLogicalDevice();
 	void _initCommandPools();
 	void _deInitCommandPools();
+
+	//////////////////////////测试基本的绘图功能，日后可能封装到其它类中
+	VkRenderPass renderPass;//与输出的图像有关
+	VkPipelineLayout pipelineLayout;//与输入的uniform数据有关
+	VkPipeline graphicsPipeline;
+
+	void _prepareRenderpass();
+	void _prepareGraphicPipeline();
+
+	VkShaderModule createShaderModule(const std::vector<char>& code);
 };
 
 class MGSwapChain {

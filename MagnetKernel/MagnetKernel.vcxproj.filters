@@ -28,6 +28,12 @@
     <Filter Include="源文件\Kernel">
       <UniqueIdentifier>{7caf2b40-1f70-4716-8ceb-036f0e56abfb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Kernel\PipeLine">
+      <UniqueIdentifier>{3c39fa44-8e38-41c8-92ce-f1f71240e12d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Kernel\PipeLine">
+      <UniqueIdentifier>{caa2726c-19b9-45e7-b4c1-5802ae379a45}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -50,6 +56,9 @@
     </ClCompile>
     <ClCompile Include="MGWindow_Share.cpp">
       <Filter>源文件\Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="MGPipeline.cpp">
+      <Filter>源文件\Kernel\PipeLine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +85,12 @@
     </ClInclude>
     <ClInclude Include="MGImageFunctions.h">
       <Filter>头文件\Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="MGPipeline.h">
+      <Filter>头文件\Kernel\PipeLine</Filter>
+    </ClInclude>
+    <ClInclude Include="MGShare.h">
+      <Filter>头文件\Share</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

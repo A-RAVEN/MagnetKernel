@@ -22,6 +22,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MGDebug.cpp" />
     <ClCompile Include="MGInstance.cpp" />
+    <ClCompile Include="MGPipeline.cpp" />
     <ClCompile Include="MGRenderer.cpp" />
     <ClCompile Include="MGWindow_Share.cpp" />
     <ClCompile Include="MGWindow_win32.cpp" />
@@ -33,7 +34,9 @@
     <ClInclude Include="MGImageFunctions.h" />
     <ClInclude Include="MGInstance.h" />
     <ClInclude Include="MGMath.h" />
+    <ClInclude Include="MGPipeline.h" />
     <ClInclude Include="MGRenderer.h" />
+    <ClInclude Include="MGShare.h" />
     <ClInclude Include="MGWindow.h" />
     <ClInclude Include="Platform.h" />
   </ItemGroup>
