@@ -126,7 +126,7 @@ void MGCheckVKResultERR(VkResult result,const char* msg)
 			stream << "VK_ERROR_UNKNOWN" << std::endl;
 			break;
 		}
-		std::cout<<"Vulkan Result ERROR: "<< stream.str().c_str()<<std::endl;
+		std::cout<<"Vulkan Result ERROR: "<< stream.str().c_str()<< "\n Message:" << msg << std::endl;
 	}
 }
 

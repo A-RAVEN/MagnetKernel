@@ -29,6 +29,8 @@ int main() {
 
 			while (window.ShouldRun()) {
 				window.UpdateWindow();
+				testRenderer.updateUniforms();
+				testRenderer.renderFrame();
 			}
 			testRenderer.releaseRenderer();		
 		}

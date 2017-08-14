@@ -111,7 +111,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\GLRELATED\basecontext\glfw-3.2.1.bin.WIN32\include;D:\VulkanSDK\1.0.51.0\Include;D:\GLRELATED\math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\GLRELATED\stbimginclude;D:\GLRELATED\basecontext\glfw-3.2.1.bin.WIN32\include;D:\VulkanSDK\1.0.51.0\Include;D:\GLRELATED\math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,7 +126,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\GLRELATED\basecontext\glfw-3.2.1.bin.WIN64\include;D:\VulkanSDK\1.0.51.0\Include;D:\GLRELATED\math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\GLRELATED\stbimginclude;D:\GLRELATED\basecontext\glfw-3.2.1.bin.WIN64\include;D:\VulkanSDK\1.0.51.0\Include;D:\GLRELATED\math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\GLRELATED\basecontext\glfw-3.2.1.bin.WIN32\include;D:\VulkanSDK\1.0.51.0\Include;D:\GLRELATED\math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\GLRELATED\stbimginclude;D:\GLRELATED\basecontext\glfw-3.2.1.bin.WIN32\include;D:\VulkanSDK\1.0.51.0\Include;D:\GLRELATED\math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -162,7 +162,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\GLRELATED\basecontext\glfw-3.2.1.bin.WIN64\include;D:\VulkanSDK\1.0.51.0\Include;D:\GLRELATED\math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\GLRELATED\stbimginclude;D:\GLRELATED\basecontext\glfw-3.2.1.bin.WIN64\include;D:\VulkanSDK\1.0.51.0\Include;D:\GLRELATED\math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -83,13 +83,13 @@
     <ClInclude Include="MGRenderer.h">
       <Filter>头文件\Kernel</Filter>
     </ClInclude>
-    <ClInclude Include="MGImageFunctions.h">
-      <Filter>头文件\Kernel</Filter>
-    </ClInclude>
     <ClInclude Include="MGPipeline.h">
       <Filter>头文件\Kernel\PipeLine</Filter>
     </ClInclude>
     <ClInclude Include="MGShare.h">
+      <Filter>头文件\Share</Filter>
+    </ClInclude>
+    <ClInclude Include="MGImageFunctions.h">
       <Filter>头文件\Share</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,6 @@
 #pragma once
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 #include "Platform.h"
 #include "MGDebug.h"
 
@@ -29,4 +31,19 @@ VkFormat mgFindSupportedImageFormat(VkPhysicalDevice physicalDevice,const std::v
 		}
 	}
 	throw std::runtime_error("failed to find supported format!");
+}
+
+struct MGRawImage {
+	stbi_uc* pixels;
+	int texWidth, texHeight, texChannels;
+	VkDeviceSize getImageSize() {
+		return texWidth * texHeight * 4;
+	}
+};
+
+MGRawImage mgLoadRawImage(const char* filePath)
+{
+	MGRawImage result;
+	result.pixels = stbi_load(filePath, &result.texWidth, &result.texHeight, &result.texChannels, STBI_rgb_alpha);
+	return result;
 }

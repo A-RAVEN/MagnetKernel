@@ -5,6 +5,7 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <algorithm>
 #include <vector>
+#include <chrono>
 
 namespace mgm {
 	typedef glm::vec2 vec2;

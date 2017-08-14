@@ -1,22 +1,12 @@
-﻿  MGRenderer.cpp
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(52): warning C4554: “&”: 检查运算符优先级可能存在的错误；使用圆括号阐明优先级
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(153): warning C4018: “<”: 有符号/无符号不匹配
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(157): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(194): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(226): error C2065: “SwapchainImageFormat”: 未声明的标识符
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(240): error C3861: “findDepthFormat”: 找不到标识符
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(268): error C2079: “attachments”使用未定义的 class“std::array<VkAttachmentDescription,2>”
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(268): error C2440: “初始化”: 无法从“initializer list”转换为“int”
-  d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(268): note: 初始值设定项包含过多元素
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(271): error C2228: “.size”的左边必须有类/结构/联合
-  d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(271): note: 类型是“int”
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(272): error C2228: “.data”的左边必须有类/结构/联合
-  d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(272): note: 类型是“int”
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(278): error C2065: “logicalDevice”: 未声明的标识符
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(278): error C2065: “renderPass”: 未声明的标识符
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(317): warning C4267: “=”: 从“size_t”转换到“uint32_t”，可能丢失数据
-  MGPipeline.cpp
+﻿  main.cpp
+  MGRenderer.cpp
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(193): warning C4554: “&”: 检查运算符优先级可能存在的错误；使用圆括号阐明优先级
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(299): warning C4018: “<”: 有符号/无符号不匹配
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(304): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(341): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(1075): warning C4267: “=”: 从“size_t”转换到“uint32_t”，可能丢失数据
+d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(1196): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
   正在生成代码...
-  正在编译...
-  main.cpp
-  正在生成代码...
+LINK : warning LNK4098: 默认库“MSVCRT”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
+  MagnetKernel.vcxproj -> D:\C++Projects\MagnetKernel\x64\Debug\MagnetKernel.exe
+  MagnetKernel.vcxproj -> D:\C++Projects\MagnetKernel\x64\Debug\MagnetKernel.pdb (Partial PDB)
