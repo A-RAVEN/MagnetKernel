@@ -4,6 +4,8 @@
 #include<iostream>
 #include<vector>
 
+class MGRenderer;
+
 struct MGSurfaceImageSupportDetails {
 	VkSurfaceCapabilitiesKHR capabilities;//Basic surface capabilities (min/max number of images in swap chain, min/max width and height of images)
 	std::vector<VkSurfaceFormatKHR> formats;//Surface formats (pixel format, color space)
@@ -37,6 +39,7 @@ public:
 	int Width = 600;
 	int Hight = 600;
 
+	MGRenderer* RelatingRenderer;
 private:
 
 

@@ -1,5 +1,6 @@
 #include "Platform.h"
 #include "MGWindow.h"
+#include "MGRenderer.h"
 
 #if VK_USE_PLATFORM_WIN32_KHR
 
@@ -30,6 +31,8 @@ MGWindow::MGWindow(std::string title, int w, int h)
 	Width = w;
 	Hight = h;
 	surfaceValid = false;
+	RelatingRenderer = nullptr;
+
 	WNDCLASSEX win_class{};
 	//assert(_surface_size_x > 0);
 	//assert(_surface_size_y > 0);
@@ -143,6 +146,10 @@ bool MGWindow::ShouldRun() {
 void MGWindow::OnResize(int w, int h) {
 	Width = w;
 	Hight = h;
+	if (RelatingRenderer)
+	{
+		RelatingRenderer->OnWindowResized();
+	}
 	//std::cout << w << "\\" << h << std::endl;
 	//RECT rect;
 	//if (GetWindowRect(_win32_window, &rect))

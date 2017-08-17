@@ -29,6 +29,7 @@ MGRenderer::MGRenderer(MGInstance* instance, MGWindow& window)
 	_prepareGraphicPipeline();
 
 	_createDescriptorPool();//!
+	SwapChain->createSwapchainFramebuffers(renderPass, true);
 	_allocateDescriptorSet();//!
 
 	_prepareVerticesBuffer();
@@ -39,6 +40,7 @@ MGRenderer::MGRenderer(MGInstance* instance, MGWindow& window)
 
 	_initPrimaryCommandBuffer();
 
+	window.RelatingRenderer = this;
 	//...
 }
 
@@ -49,6 +51,18 @@ MGRenderer::~MGRenderer()
 void MGRenderer::releaseRenderer()
 {
 	//...
+	vkQueueWaitIdle(ActiveQueues[GraphicQueuesIndices[0]]);
+
+	vkDestroyBuffer(LogicalDevice, vertexBuffer, nullptr);
+	vkFreeMemory(LogicalDevice, vertexBufferMemory, nullptr);
+	vkDestroyBuffer(LogicalDevice, indexBuffer, nullptr);
+	vkFreeMemory(LogicalDevice, indexBufferMemory, nullptr);
+	vkDestroyBuffer(LogicalDevice, uniformBuffer, nullptr);
+	vkFreeMemory(LogicalDevice, uniformBufferMemory, nullptr);
+
+	vkDestroyImageView(LogicalDevice, texture.imageView,nullptr);
+	vkDestroyImage(LogicalDevice, texture.image, nullptr);
+	vkFreeMemory(LogicalDevice, texture.imageMemory, nullptr);
 
 	vkDestroyDescriptorPool(LogicalDevice, descriptorPool, nullptr);
 	vkDestroyPipelineLayout(LogicalDevice, pipelineLayout, nullptr);
@@ -75,6 +89,7 @@ void MGRenderer::updateUniforms()
 	ubo.model = glm::rotate(glm::mat4(), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.proj = glm::perspective(glm::radians(45.0f), SwapChain->SwapchainExtent.width / (float)SwapChain->SwapchainExtent.height, 0.1f, 10.0f);
+	//ubo.proj = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;
 
 	void* data;
@@ -86,7 +101,7 @@ void MGRenderer::updateUniforms()
 void MGRenderer::renderFrame()
 {
 	uint32_t imageIndex;
-	VkResult result = vkAcquireNextImageKHR(LogicalDevice, SwapChain->swapchain, std::numeric_limits<uint64_t>::max(), RendererSemaphores.MG_SEMAPHORE_SWAPCHAIN_IMAGE_AVAILABLE, VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(LogicalDevice, SwapChain->Swapchain, (std::numeric_limits<uint64_t>::max)(), RendererSemaphores.MG_SEMAPHORE_SWAPCHAIN_IMAGE_AVAILABLE, VK_NULL_HANDLE, &imageIndex);
 
 	//VkCommandBuffer commandBuffer = beginSingleTimeCommands(CommandPools[GraphicCommandPoolIndex]);
 	
@@ -110,7 +125,7 @@ void MGRenderer::renderFrame()
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = &RendererSemaphores.MG_SEMAPHORE_RENDER_FINISH;
-	VkSwapchainKHR swapChains[] = { SwapChain->swapchain };
+	VkSwapchainKHR swapChains[] = { SwapChain->Swapchain };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &imageIndex;
@@ -118,6 +133,15 @@ void MGRenderer::renderFrame()
 
 
 	result = vkQueuePresentKHR(ActiveQueues[PresentQueuesIndices[0]], &presentInfo);
+}
+
+void MGRenderer::OnWindowResized()
+{
+	vkQueueWaitIdle(ActiveQueues[GraphicQueuesIndices[0]]);
+	SwapChain->releaseSwapChain();
+	SwapChain->initSwapChain();
+	SwapChain->createSwapchainFramebuffers(renderPass, true);
+	_recordPrimaryCommandBuffers();
 }
 
 uint32_t MGRenderer::mgFindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
@@ -334,7 +358,7 @@ void MGRenderer::_initCommandPools()
 		VkCommandPoolCreateInfo poolInfo = {};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.queueFamilyIndex = Index;
-		poolInfo.flags = 0; //
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; //
 		vkCreateCommandPool(LogicalDevice, &poolInfo, nullptr, &pool);
 
 		CommandPools.push_back(pool);
@@ -380,7 +404,12 @@ void MGRenderer::_initPrimaryCommandBuffer()
 	if (vkAllocateCommandBuffers(LogicalDevice, &allocInfo, PrimaryCommandBuffers.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
-	for (int i = 0; i < PrimaryCommandBuffers.size();i++) {
+	_recordPrimaryCommandBuffers();
+}
+
+void MGRenderer::_recordPrimaryCommandBuffers()
+{
+	for (int i = 0; i < PrimaryCommandBuffers.size(); i++) {
 		VkCommandBuffer PrimaryCommandBuffer = PrimaryCommandBuffers[i];
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -403,7 +432,24 @@ void MGRenderer::_initPrimaryCommandBuffer()
 		renderPassInfo.pClearValues = clearValues.data();
 
 		vkCmdBeginRenderPass(PrimaryCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
 		vkCmdBindPipeline(PrimaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+		VkViewport viewport = {};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = (float)SwapChain->SwapchainExtent.width;
+		viewport.height = (float)SwapChain->SwapchainExtent.height;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		vkCmdSetViewport(PrimaryCommandBuffer, 0, 1, &viewport);
+
+		VkRect2D scissor = {};
+		scissor.offset = { 0, 0 };
+		scissor.extent = SwapChain->SwapchainExtent;
+		vkCmdSetScissor(PrimaryCommandBuffer, 0, 1, &scissor);
+
+
 		//draw verticies
 		VkBuffer vertexBuffers[] = { vertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
@@ -525,7 +571,7 @@ void MGRenderer::_prepareRenderpass()
 	renderPassInfo.pDependencies = &dependency;
 
 	MGCheckVKResultERR(vkCreateRenderPass(LogicalDevice, &renderPassInfo, nullptr, &renderPass),"RenderPass创建失败！");
-	SwapChain->createSwapchainFramebuffers(renderPass, true);
+
 }
 
 void MGRenderer::_prepareDescriptorSetLayout()
@@ -682,6 +728,12 @@ void MGRenderer::_prepareGraphicPipeline()
 	pipelineLayoutInfo.pPushConstantRanges = 0; // Optional
 
 	MGCheckVKResultERR(vkCreatePipelineLayout(LogicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout), "PipelineLayout创建失败！");
+
+	std::vector<VkDynamicState> dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT ,VK_DYNAMIC_STATE_SCISSOR };
+	VkPipelineDynamicStateCreateInfo pipelineDynamicStateInfo = {};
+	pipelineDynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	pipelineDynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+	pipelineDynamicStateInfo.pDynamicStates = dynamicStates.data();
 
 	VkGraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -1042,6 +1094,26 @@ MGSwapChain::MGSwapChain(MGRenderer* renderer,MGWindow* window)
 {
 	OwningRenderer = renderer;
 	RelatingWindow = window;
+	initSwapChain();
+}
+
+MGSwapChain::~MGSwapChain()
+{
+
+}
+
+void MGSwapChain::releaseSwapChain()
+{
+	destroySwapchainFramebuffers();
+	for (size_t i = 0; i < SwapchainImageViews.size(); i++) {
+		vkDestroyImageView(OwningRenderer->LogicalDevice, SwapchainImageViews[i], nullptr);
+	}
+	SwapchainImages.clear();
+	vkDestroySwapchainKHR(OwningRenderer->LogicalDevice, Swapchain, nullptr);
+}
+
+void MGSwapChain::initSwapChain()
+{
 	VkSurfaceKHR surface;
 	RelatingWindow->getWindowSurface(&surface);
 
@@ -1086,16 +1158,16 @@ MGSwapChain::MGSwapChain(MGRenderer* renderer,MGWindow* window)
 	createInfo.clipped = VK_TRUE;
 	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	if (vkCreateSwapchainKHR(OwningRenderer->LogicalDevice, &createInfo, nullptr, &swapchain) != VK_SUCCESS) {
+	if (vkCreateSwapchainKHR(OwningRenderer->LogicalDevice, &createInfo, nullptr, &Swapchain) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create swap chain!");
 	}
 
 	SwapchainImageFormat = surfaceFormat.format;
 	SwapchainExtent = extent;
 
-	vkGetSwapchainImagesKHR(OwningRenderer->LogicalDevice, swapchain, &imageCount, nullptr);
+	vkGetSwapchainImagesKHR(OwningRenderer->LogicalDevice, Swapchain, &imageCount, nullptr);
 	SwapchainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(OwningRenderer->LogicalDevice, swapchain, &imageCount, SwapchainImages.data());
+	vkGetSwapchainImagesKHR(OwningRenderer->LogicalDevice, Swapchain, &imageCount, SwapchainImages.data());
 
 	SwapchainImageViews.resize(SwapchainImages.size());
 
@@ -1111,25 +1183,10 @@ MGSwapChain::MGSwapChain(MGRenderer* renderer,MGWindow* window)
 	}
 }
 
-MGSwapChain::~MGSwapChain()
-{
-
-}
-
-void MGSwapChain::releaseSwapChain()
-{
-	for (size_t i = 0; i < SwapchainImageViews.size(); i++) {
-		vkDestroyImageView(OwningRenderer->LogicalDevice, SwapchainImageViews[i], nullptr);
-	}
-	vkDestroySwapchainKHR(OwningRenderer->LogicalDevice, swapchain, nullptr);
-}
-
 void MGSwapChain::createSwapchainFramebuffers(VkRenderPass renderPass, bool enableDepth)
 {
-	if (SwapchainFramebuffers.size() > 0)
-	{
-		destroySwapchainFramebuffers();
-	}
+
+	destroySwapchainFramebuffers();
 	if (enableDepth)
 	{
 		VkFormat depthFormat = mgFindSupportedImageFormat(
@@ -1173,16 +1230,19 @@ void MGSwapChain::createSwapchainFramebuffers(VkRenderPass renderPass, bool enab
 
 void MGSwapChain::destroySwapchainFramebuffers()
 {
-	for (size_t i = 0; i < SwapchainFramebuffers.size(); i++)
+	if (SwapchainFramebuffers.size() > 0)
 	{
-		vkDestroyFramebuffer(OwningRenderer->LogicalDevice, SwapchainFramebuffers[i], nullptr);
-	}
-	SwapchainFramebuffers.clear();
-	if (DepthTexture.image)
-	{
-		vkDestroyImageView(OwningRenderer->LogicalDevice, DepthTexture.imageView, nullptr);
-		vkDestroyImage(OwningRenderer->LogicalDevice, DepthTexture.image, nullptr);
-		vkFreeMemory(OwningRenderer->LogicalDevice, DepthTexture.imageMemory, nullptr);
+		for (size_t i = 0; i < SwapchainFramebuffers.size(); i++)
+		{
+			vkDestroyFramebuffer(OwningRenderer->LogicalDevice, SwapchainFramebuffers[i], nullptr);
+		}
+		SwapchainFramebuffers.clear();
+		if (DepthTexture.image)
+		{
+			vkDestroyImageView(OwningRenderer->LogicalDevice, DepthTexture.imageView, nullptr);
+			vkDestroyImage(OwningRenderer->LogicalDevice, DepthTexture.image, nullptr);
+			vkFreeMemory(OwningRenderer->LogicalDevice, DepthTexture.imageMemory, nullptr);
+		}
 	}
 }
 

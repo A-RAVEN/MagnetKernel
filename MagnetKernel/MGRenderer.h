@@ -1,5 +1,6 @@
 #pragma once
 #include "Platform.h"
+#include "MGDebug.h"
 #include "MGMath.h"
 #include "MGInstance.h"
 #include "MGWindow.h"
@@ -89,6 +90,7 @@ public:
 	void releaseRenderer();
 	void updateUniforms();
 	void renderFrame();
+	void OnWindowResized();
 
 	//Useful Member Value;
 	const std::vector<const char*> deviceExtensions = {
@@ -144,6 +146,7 @@ private:
 	void _initCommandPools();
 	void _deInitCommandPools();
 	void _initPrimaryCommandBuffer();
+	void _recordPrimaryCommandBuffers();
 	void _initSamplers();
 	void _deInitSamplers();
 	void _initSemaphores();
@@ -191,7 +194,7 @@ public:
 	MGSwapChain(MGRenderer* renderer, MGWindow* window);
 	~MGSwapChain();
 	void releaseSwapChain();
-	
+	void initSwapChain();
 	void createSwapchainFramebuffers(VkRenderPass renderPass,bool enableDepth);
 	//³õÊ¼»¯SwapchainµÄFramebuffer
 	void destroySwapchainFramebuffers();
@@ -199,7 +202,7 @@ public:
 	VkFramebuffer getSwapchainFramebuffer(int index);
 	int getSwapchainImageSize();
 
-	VkSwapchainKHR swapchain;
+	VkSwapchainKHR Swapchain;
 
 	VkFormat SwapchainImageFormat;
 	VkExtent2D SwapchainExtent;

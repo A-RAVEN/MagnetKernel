@@ -3,11 +3,11 @@ d:\c++projects\magnetkernel\magnetkernel\x64\debug\vc141.idb
 d:\c++projects\magnetkernel\magnetkernel\x64\debug\main.obj
 d:\c++projects\magnetkernel\magnetkernel\x64\debug\mgdebug.obj
 d:\c++projects\magnetkernel\magnetkernel\x64\debug\mginstance.obj
+d:\c++projects\magnetkernel\magnetkernel\x64\debug\mgpipeline.obj
 d:\c++projects\magnetkernel\magnetkernel\x64\debug\mgrenderer.obj
+d:\c++projects\magnetkernel\magnetkernel\x64\debug\mgwindow_share.obj
 d:\c++projects\magnetkernel\magnetkernel\x64\debug\mgwindow_win32.obj
 d:\c++projects\magnetkernel\magnetkernel\x64\debug\mgwindow_glfw.obj
-d:\c++projects\magnetkernel\magnetkernel\x64\debug\mgwindow_share.obj
-d:\c++projects\magnetkernel\magnetkernel\x64\debug\mgpipeline.obj
 d:\c++projects\magnetkernel\x64\debug\magnetkernel.ilk
 d:\c++projects\magnetkernel\x64\debug\magnetkernel.exe
 d:\c++projects\magnetkernel\x64\debug\magnetkernel.pdb

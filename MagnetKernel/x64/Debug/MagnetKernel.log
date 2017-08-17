@@ -1,12 +1,1 @@
-﻿  main.cpp
-  MGRenderer.cpp
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(193): warning C4554: “&”: 检查运算符优先级可能存在的错误；使用圆括号阐明优先级
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(299): warning C4018: “<”: 有符号/无符号不匹配
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(304): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(341): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(1075): warning C4267: “=”: 从“size_t”转换到“uint32_t”，可能丢失数据
-d:\c++projects\magnetkernel\magnetkernel\mgrenderer.cpp(1196): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
-  正在生成代码...
-LINK : warning LNK4098: 默认库“MSVCRT”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
-  MagnetKernel.vcxproj -> D:\C++Projects\MagnetKernel\x64\Debug\MagnetKernel.exe
-  MagnetKernel.vcxproj -> D:\C++Projects\MagnetKernel\x64\Debug\MagnetKernel.pdb (Partial PDB)
+﻿

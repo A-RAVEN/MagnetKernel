@@ -1,5 +1,6 @@
 #include "Platform.h"
 #include "MGWindow.h"
+#include "MGRenderer.h"
 #include <Windows.h>
 
 #ifdef	GLFW_INCLUDE_VULKAN
@@ -13,6 +14,7 @@ MGWindow::MGWindow(std::string title, int w, int h) {
 	Width = w;
 	Hight = h;
 	surfaceValid = false;
+	RelatingRenderer = nullptr;
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -68,6 +70,10 @@ bool MGWindow::ShouldRun() {
 void MGWindow::OnResize(int w, int h) {
 	Width = w;
 	Hight = h;
+	if (RelatingRenderer)
+	{
+		RelatingRenderer->OnWindowResized();
+	}
 	//std::cout << w << "\\" << h << std::endl;
 	//RECT rect;
 	//
