@@ -1,7 +1,7 @@
 #include "MGMath.h"
 #include "MGDebug.h"
 #include "MGRenderer.h"
-#include "MGImageFunctions.h"
+#include "MGImageLoad.h"
 #include "MGShare.h"
 
 const std::vector<uint16_t> indices = {
@@ -527,8 +527,7 @@ void MGRenderer::_prepareRenderpass()
 
 	VkAttachmentDescription depthAttachment = {};
 
-	depthAttachment.format = mgFindSupportedImageFormat(
-		PhysicalDevice.device,
+	depthAttachment.format = findSupportedImageFormat(
 	{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
 		VK_IMAGE_TILING_OPTIMAL,
 		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
@@ -876,7 +875,7 @@ void MGRenderer::_prepareTextures()
 	range.levelCount = 1;
 	range.baseArrayLayer = 0;
 	range.layerCount = 1;
-	texture.imageView = mgCreateImageView2D(LogicalDevice, texture.image, VK_FORMAT_R8G8B8A8_UNORM, range);
+	texture.imageView = createImageView2D(texture.image, VK_FORMAT_R8G8B8A8_UNORM, range);
 
 	texture.sampler = TextureSamplers.MG_SAMPLER_NORMAL;
 }
@@ -1090,6 +1089,37 @@ void MGRenderer::transitionImageLayout(VkImage image, VkFormat format, VkImageLa
 	endSingleTimeCommands(commandBuffer, ActiveQueues[GraphicQueuesIndices[GraphicQueuesIndices.size() - 1]], CommandPools[GraphicCommandPoolIndex]);
 }
 
+VkImageView MGRenderer::createImageView2D(VkImage image, VkFormat format, VkImageSubresourceRange subresourceRange)
+{
+	VkImageViewCreateInfo viewInfo = {};
+	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	viewInfo.image = image;
+	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	viewInfo.format = format;
+	viewInfo.subresourceRange = subresourceRange;
+
+	VkImageView imageView;
+	MGCheckVKResultERR(vkCreateImageView(LogicalDevice, &viewInfo, nullptr, &imageView), "Failed to create ImageView");
+
+	return imageView;
+}
+
+VkFormat MGRenderer::findSupportedImageFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+{
+	for (VkFormat format : candidates) {
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(PhysicalDevice.device, format, &props);
+
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+			return format;
+		}
+		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+			return format;
+		}
+	}
+	MGThrowError(true, "Failed to find supported image format !");
+}
+
 MGSwapChain::MGSwapChain(MGRenderer* renderer,MGWindow* window)
 {
 	OwningRenderer = renderer;
@@ -1179,7 +1209,7 @@ void MGSwapChain::initSwapChain()
 	subresourceRange.layerCount = 1;
 
 	for (uint32_t i = 0; i < SwapchainImages.size(); i++) {
-		SwapchainImageViews[i] = mgCreateImageView2D(OwningRenderer->LogicalDevice, SwapchainImages[i], SwapchainImageFormat, subresourceRange);
+		SwapchainImageViews[i] = OwningRenderer->createImageView2D(SwapchainImages[i], SwapchainImageFormat, subresourceRange);
 	}
 }
 
@@ -1189,8 +1219,7 @@ void MGSwapChain::createSwapchainFramebuffers(VkRenderPass renderPass, bool enab
 	destroySwapchainFramebuffers();
 	if (enableDepth)
 	{
-		VkFormat depthFormat = mgFindSupportedImageFormat(
-			OwningRenderer->PhysicalDevice.device,
+		VkFormat depthFormat = OwningRenderer->findSupportedImageFormat(
 		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
@@ -1202,7 +1231,7 @@ void MGSwapChain::createSwapchainFramebuffers(VkRenderPass renderPass, bool enab
 		range.levelCount = 1;
 		range.baseArrayLayer = 0;
 		range.layerCount = 1;
-		DepthTexture.imageView = mgCreateImageView2D(OwningRenderer->LogicalDevice, DepthTexture.image, depthFormat, range);
+		DepthTexture.imageView = OwningRenderer->createImageView2D(DepthTexture.image, depthFormat, range);
 
 		OwningRenderer->transitionImageLayout(DepthTexture.image, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 	}

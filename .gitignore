@@ -50,10 +50,10 @@ Temporary Items
 #过滤数据库文件、sln解决方案文件、配置文件
 *.mdb
 *.ldb
-*.config
 *.ipch
-*.sln
 
 Debug/
 Release/
 .vs/
+MagnetKernel/Debug/MagnetKernel.log
+*.log

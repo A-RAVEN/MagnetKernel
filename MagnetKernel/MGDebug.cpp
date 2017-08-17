@@ -130,6 +130,15 @@ void MGCheckVKResultERR(VkResult result,const char* msg)
 	}
 }
 
+void MGThrowError(bool terminate, const char* errMessage) {
+	if (terminate) {
+		throw std::runtime_error(errMessage);
+	}
+	else {
+		std::cout << "Runtime Error !" << errMessage << std::endl;
+	}
+}
+
 void MGCheckValidationLayerSupport(std::vector<const char*> validationLayers, ExtensionType type, VkPhysicalDevice device) {
 	uint32_t layerCount;
 	std::vector<VkLayerProperties> availableLayers;
@@ -169,11 +178,13 @@ void MGCheckValidationLayerSupport(std::vector<const char*> validationLayers, Ex
 	if (unfoundLayers.size() > 0)
 	{
 		//debug report
-		std::cout << "UNFOUND_LAYERS:" << std::endl;
+		std::ostringstream stream;
+		stream << "UNFOUND_LAYERS:" << std::endl;
 		for (auto out : unfoundLayers)
 		{
-			std::cout << out << std::endl;
+			stream << out << std::endl;
 		}
+		MGThrowError(false, stream.str().c_str());
 	}
 }
 
@@ -209,7 +220,7 @@ void MGInstanceDestroyDebugReportCallback(VkInstance instance) {
 }
 
 #else
-void MGCheckVKResultERR(VkResult result){}
+void MGCheckVKResultERR(VkResult result, const char* msg){}
 void MGCheckValidationLayerSupport(std::vector<const char*> validationLayers, ExtensionType type, VkPhysicalDevice device) {}
 VkResult MGInstanceSetupDebugReportCallback(VkInstance instance) { return VK_SUCCESS; }
 void ERRReport(const char* msg, bool shouldTerminate) {
@@ -218,6 +229,11 @@ void ERRReport(const char* msg, bool shouldTerminate) {
 	}
 }
 void MGInstanceDestroyDebugReportCallback(VkInstance instance) {}
+void MGThrowError(bool terminate, const char* errMessage) {
+	if (terminate) {
+		throw std::runtime_error(errMessage);
+	}
+}
 #endif
 
 void MGCheckExtensions(std::vector<const char*> input, ExtensionType type, VkPhysicalDevice device)

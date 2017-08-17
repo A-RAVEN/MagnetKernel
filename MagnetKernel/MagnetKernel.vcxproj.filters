@@ -89,7 +89,7 @@
     <ClInclude Include="MGShare.h">
       <Filter>头文件\Share</Filter>
     </ClInclude>
-    <ClInclude Include="MGImageFunctions.h">
+    <ClInclude Include="MGImageLoad.h">
       <Filter>头文件\Share</Filter>
     </ClInclude>
   </ItemGroup>
