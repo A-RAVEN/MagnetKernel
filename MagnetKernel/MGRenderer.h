@@ -8,6 +8,14 @@
 
 class MGSwapChain;
 
+enum MGUses
+{
+	MG_USE_GRAPHIC,
+	MG_USE_TRANSFER,
+	MG_USE_COMPUTE,
+	MG_USE_PRESENT
+};
+
 struct Vertex {
 	glm::vec3 pos;
 	glm::vec3 color;
@@ -119,6 +127,8 @@ public:
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	VkImageView createImageView2D(VkImage image, VkFormat format, VkImageSubresourceRange subresourceRange);
 	VkFormat findSupportedImageFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+	VkCommandPool getCommandPool(MGUses use);
+	VkQueue getQueue(MGUses use, int idealID);
 private:
 
 	VkSurfaceKHR OutputSurface;

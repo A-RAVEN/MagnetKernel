@@ -51,7 +51,7 @@ MGRenderer::~MGRenderer()
 void MGRenderer::releaseRenderer()
 {
 	//...
-	vkQueueWaitIdle(ActiveQueues[GraphicQueuesIndices[0]]);
+	vkQueueWaitIdle(getQueue(MG_USE_GRAPHIC,0));
 
 	vkDestroyBuffer(LogicalDevice, vertexBuffer, nullptr);
 	vkFreeMemory(LogicalDevice, vertexBufferMemory, nullptr);
@@ -117,7 +117,7 @@ void MGRenderer::renderFrame()
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = &RendererSemaphores.MG_SEMAPHORE_RENDER_FINISH;
 
-	MGCheckVKResultERR(vkQueueSubmit(ActiveQueues[GraphicQueuesIndices[0]], 1, &submitInfo, VK_NULL_HANDLE), "Render command buffer submit failed!");
+	MGCheckVKResultERR(vkQueueSubmit(getQueue(MG_USE_GRAPHIC,0), 1, &submitInfo, VK_NULL_HANDLE), "Render command buffer submit failed!");
 	//endSingleTimeCommands(commandBuffer, ActiveQueues[GraphicQueuesIndices[0]], CommandPools[GraphicCommandPoolIndex]);
 
 
@@ -132,12 +132,12 @@ void MGRenderer::renderFrame()
 	presentInfo.pResults = nullptr; // Optional
 
 
-	result = vkQueuePresentKHR(ActiveQueues[PresentQueuesIndices[0]], &presentInfo);
+	result = vkQueuePresentKHR(getQueue(MG_USE_PRESENT, 0), &presentInfo);
 }
 
 void MGRenderer::OnWindowResized()
 {
-	vkQueueWaitIdle(ActiveQueues[GraphicQueuesIndices[0]]);
+	vkQueueWaitIdle(getQueue(MG_USE_GRAPHIC, 0));
 	SwapChain->releaseSwapChain();
 	SwapChain->initSwapChain();
 	SwapChain->createSwapchainFramebuffers(renderPass, true);
@@ -160,7 +160,7 @@ uint32_t MGRenderer::mgFindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
 
 void MGRenderer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands(CommandPools[GraphicCommandPoolIndex]);
+	VkCommandBuffer commandBuffer = beginSingleTimeCommands(getCommandPool(MG_USE_GRAPHIC));
 
 	VkBufferCopy copyRegion = {};
 	copyRegion.srcOffset = 0; // Optional
@@ -168,12 +168,12 @@ void MGRenderer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize
 	copyRegion.size = size;
 	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-	endSingleTimeCommands(commandBuffer,ActiveQueues[GraphicQueuesIndices[0]], CommandPools[GraphicCommandPoolIndex]);
+	endSingleTimeCommands(commandBuffer, getQueue(MG_USE_GRAPHIC, 1), getCommandPool(MG_USE_GRAPHIC));
 }
 
 void MGRenderer::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
 {
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands(CommandPools[TransferCommandPoolIndex]);
+	VkCommandBuffer commandBuffer = beginSingleTimeCommands(getCommandPool(MG_USE_TRANSFER));
 	VkBufferImageCopy region = {};
 	region.bufferOffset = 0;
 	region.bufferRowLength = 0;
@@ -198,7 +198,7 @@ void MGRenderer::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t widt
 		1,
 		&region
 	);
-	endSingleTimeCommands(commandBuffer,ActiveQueues[TransferQueuesIndices[0]], CommandPools[TransferCommandPoolIndex]);
+	endSingleTimeCommands(commandBuffer, getQueue(MG_USE_TRANSFER, 1), getCommandPool(MG_USE_TRANSFER));
 }
 
 void MGRenderer::_selectPhysicalDevice(MGInstance* instance, VkSurfaceKHR windowSurface)
@@ -397,7 +397,7 @@ void MGRenderer::_initPrimaryCommandBuffer()
 	PrimaryCommandBuffers.resize(size);
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = CommandPools[GraphicCommandPoolIndex];
+	allocInfo.commandPool = getCommandPool(MG_USE_GRAPHIC);
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandBufferCount = (uint32_t)size;
 
@@ -1034,7 +1034,7 @@ void MGRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMem
 
 void MGRenderer::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands(CommandPools[GraphicCommandPoolIndex]);
+	VkCommandBuffer commandBuffer = beginSingleTimeCommands(getCommandPool(MG_USE_GRAPHIC));
 	VkImageMemoryBarrier barrier = {};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	barrier.oldLayout = oldLayout;
@@ -1086,7 +1086,7 @@ void MGRenderer::transitionImageLayout(VkImage image, VkFormat format, VkImageLa
 		0, nullptr,
 		1, &barrier
 	);
-	endSingleTimeCommands(commandBuffer, ActiveQueues[GraphicQueuesIndices[GraphicQueuesIndices.size() - 1]], CommandPools[GraphicCommandPoolIndex]);
+	endSingleTimeCommands(commandBuffer, getQueue(MG_USE_GRAPHIC, 2), getCommandPool(MG_USE_GRAPHIC));
 }
 
 VkImageView MGRenderer::createImageView2D(VkImage image, VkFormat format, VkImageSubresourceRange subresourceRange)
@@ -1118,6 +1118,51 @@ VkFormat MGRenderer::findSupportedImageFormat(const std::vector<VkFormat>& candi
 		}
 	}
 	MGThrowError(true, "Failed to find supported image format !");
+}
+
+VkCommandPool MGRenderer::getCommandPool(MGUses use)
+{
+	switch (use)
+	{
+	case MG_USE_GRAPHIC:
+		return CommandPools[GraphicCommandPoolIndex];
+		break;
+	case MG_USE_TRANSFER:
+		return CommandPools[TransferCommandPoolIndex];
+		break;
+	case MG_USE_COMPUTE:
+		return CommandPools[ComputeCommandPoolIndex];
+		break;
+	case MG_USE_PRESENT:
+		return CommandPools[PresentCommandPoolIndex];
+		break;
+	default:
+		MGThrowError(true, "Cannot get command pool");
+		break;
+	}
+	
+}
+
+VkQueue MGRenderer::getQueue(MGUses use, int idealID)
+{
+	switch (use)
+	{
+	case MG_USE_GRAPHIC:
+		return ActiveQueues[GraphicQueuesIndices[std::min<int>(GraphicQueuesIndices.size() - 1, idealID)]];
+		break;
+	case MG_USE_TRANSFER:
+		return ActiveQueues[TransferQueuesIndices[std::min<int>(TransferQueuesIndices.size() - 1, idealID)]];
+		break;
+	case MG_USE_COMPUTE:
+		return ActiveQueues[ComputeQueuesIndices[std::min<int>(ComputeQueuesIndices.size() - 1, idealID)]];
+		break;
+	case MG_USE_PRESENT:
+		return ActiveQueues[PresentQueuesIndices[std::min<int>(PresentQueuesIndices.size() - 1, idealID)]];
+		break;
+	default:
+		MGThrowError(true, "Cannot get ideal queue");
+		break;
+	}
 }
 
 MGSwapChain::MGSwapChain(MGRenderer* renderer,MGWindow* window)
