@@ -1079,14 +1079,14 @@ void MGRenderer::transitionImageLayout(VkImage image, VkFormat format, VkImageLa
 
 	vkCmdPipelineBarrier(
 		commandBuffer,
-		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,//barrier在此阶段开始之后执行
-		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,//barrier在此阶段结束之前完成
+		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,//barrier在此阶段开始之后执行
+		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,//barrier在此阶段结束之前完成
 		0,
 		0, nullptr,
 		0, nullptr,
 		1, &barrier
 	);
-	endSingleTimeCommands(commandBuffer, getQueue(MG_USE_GRAPHIC, 2), getCommandPool(MG_USE_GRAPHIC));
+	endSingleTimeCommands(commandBuffer, getQueue(MG_USE_TRANSFER, 2), getCommandPool(MG_USE_TRANSFER));
 }
 
 VkImageView MGRenderer::createImageView2D(VkImage image, VkFormat format, VkImageSubresourceRange subresourceRange)
