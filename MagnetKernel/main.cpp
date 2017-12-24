@@ -1,6 +1,9 @@
 //#define GLFW_INCLUDE_VULKAN
 //#include <GLFW/glfw3.h>
 #include <stdexcept>
+
+
+
 #include "Platform.h"
 #include "MGDebug.h"
 #include "MGInstance.h"
@@ -16,7 +19,7 @@
 
 int main() {
 	try {
-#if BUILD_USING_GLFW
+#ifdef BUILD_USING_GLFW
 		glfwInit();
 #endif
 
@@ -38,7 +41,7 @@ int main() {
 		window.releaseWindow();
 		instance.releaseInstance();
 
-#if BUILD_USING_GLFW
+#ifdef BUILD_USING_GLFW
 		glfwTerminate();
 #endif
 	}

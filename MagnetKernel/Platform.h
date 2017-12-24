@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "BUILD_OPTIONS.h"
 
-#if BUILD_USING_GLFW
+#ifdef BUILD_USING_GLFW
 
 #define GLFW_INCLUDE_VULKAN
 //#define GLFW_EXPOSE_NATIVE_WIN32

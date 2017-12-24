@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 
-#if BUILD_ENABLE_DEBUG
+#ifdef _DEBUG
 
 static VkDebugReportCallbackEXT debugReportCallBack;
 

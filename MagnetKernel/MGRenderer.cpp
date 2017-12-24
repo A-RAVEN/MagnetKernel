@@ -1,7 +1,7 @@
 #include "MGMath.h"
 #include "MGDebug.h"
 #include "MGRenderer.h"
-#include "MGImageLoad.h"
+//#include "MGImageLoad.h"
 #include "MGShare.h"
 
 const std::vector<uint16_t> indices = {
@@ -303,7 +303,7 @@ void MGRenderer::_initLogicalDevice()
 	createInfo.pEnabledFeatures = &deviceFeatures;
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 	createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-#if BUILD_ENABLE_DEBUG
+#ifdef _DEBUG
 	const std::vector<const char*> validationLayers = {
 		"VK_LAYER_LUNARG_standard_validation", "VK_LAYER_LUNARG_core_validation"
 	};
@@ -435,20 +435,8 @@ void MGRenderer::_recordPrimaryCommandBuffers()
 
 		vkCmdBindPipeline(PrimaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-		VkViewport viewport = {};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = (float)SwapChain->SwapchainExtent.width;
-		viewport.height = (float)SwapChain->SwapchainExtent.height;
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(PrimaryCommandBuffer, 0, 1, &viewport);
-
-		VkRect2D scissor = {};
-		scissor.offset = { 0, 0 };
-		scissor.extent = SwapChain->SwapchainExtent;
-		vkCmdSetScissor(PrimaryCommandBuffer, 0, 1, &scissor);
-
+		vkCmdSetViewport(PrimaryCommandBuffer, 0, 1, &createFullScreenViewport());
+		vkCmdSetScissor(PrimaryCommandBuffer, 0, 1, &createFullScreenRect());
 
 		//draw verticies
 		VkBuffer vertexBuffers[] = { vertexBuffer };
@@ -745,7 +733,7 @@ void MGRenderer::_prepareGraphicPipeline()
 	pipelineInfo.pMultisampleState = &multisampling;
 	pipelineInfo.pDepthStencilState = &depthStencil; // Optional
 	pipelineInfo.pColorBlendState = &colorBlending;
-	pipelineInfo.pDynamicState = nullptr; // Optional
+	pipelineInfo.pDynamicState = &pipelineDynamicStateInfo; // Optional
 	pipelineInfo.layout = pipelineLayout;
 	pipelineInfo.renderPass = renderPass;
 	pipelineInfo.subpass = 0;
@@ -1163,6 +1151,26 @@ VkQueue MGRenderer::getQueue(MGUses use, int idealID)
 		MGThrowError(true, "Cannot get ideal queue");
 		break;
 	}
+}
+
+VkViewport MGRenderer::createFullScreenViewport()
+{
+	VkViewport viewport = {};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = (float)SwapChain->SwapchainExtent.width;
+	viewport.height = (float)SwapChain->SwapchainExtent.height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	return viewport;
+}
+
+VkRect2D MGRenderer::createFullScreenRect()
+{
+	VkRect2D rect = {};
+	rect.offset = { 0, 0 };
+	rect.extent = SwapChain->SwapchainExtent;
+	return rect;
 }
 
 MGSwapChain::MGSwapChain(MGRenderer* renderer,MGWindow* window)

@@ -47,7 +47,7 @@ void MGInstance::_createInstance()
 		extensions.push_back(windowExtensions[i]);
 	}
 
-#if BUILD_ENABLE_DEBUG//DEBUG
+#ifdef _DEBUG//DEBUG
 	extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 #endif//DEBUG
 
@@ -60,7 +60,7 @@ void MGInstance::_createInstance()
 	createInfo.enabledExtensionCount = extensions.size();
 	createInfo.ppEnabledExtensionNames = extensions.data();
 
-#if BUILD_ENABLE_DEBUG//DEBUG
+#ifdef _DEBUG//DEBUG
 	const std::vector<const char*> validationLayers = {
 		"VK_LAYER_LUNARG_standard_validation"
 	};

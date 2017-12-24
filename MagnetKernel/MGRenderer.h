@@ -2,6 +2,7 @@
 #include "Platform.h"
 #include "MGDebug.h"
 #include "MGMath.h"
+#include "MGImageLoad.h"
 #include "MGInstance.h"
 #include "MGWindow.h"
 #include <vector>
@@ -57,12 +58,12 @@ struct UniformBufferObject {
 	mgm::mat4 proj;
 };
 
-struct Texture {
-	VkImage image;
-	VkDeviceMemory imageMemory;
-	VkImageView imageView;
-	VkSampler sampler;
-};
+//struct Texture {
+//	VkImage image;
+//	VkDeviceMemory imageMemory;
+//	VkImageView imageView;
+//	VkSampler sampler;
+//};
 
 struct MGSamplers {
 	VkSampler MG_SAMPLER_NORMAL;
@@ -108,6 +109,8 @@ public:
 	VkDevice LogicalDevice;
 	MGDevice PhysicalDevice;
 
+	MGSwapChain* SwapChain;
+
 	int GraphicQueueFamilyIndex;
 	int TransferQueueFamilyIndex;
 	int ComputeQueueFamilyIndex;
@@ -129,6 +132,8 @@ public:
 	VkFormat findSupportedImageFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	VkCommandPool getCommandPool(MGUses use);
 	VkQueue getQueue(MGUses use, int idealID);
+	VkViewport createFullScreenViewport();
+	VkRect2D createFullScreenRect();
 private:
 
 	VkSurfaceKHR OutputSurface;
@@ -147,8 +152,6 @@ private:
 
 	std::vector<VkQueue>ActiveQueues;
 	std::vector<VkCommandPool>CommandPools;
-
-	MGSwapChain* SwapChain;
 
 	std::vector<VkCommandBuffer> PrimaryCommandBuffers = {};
 
