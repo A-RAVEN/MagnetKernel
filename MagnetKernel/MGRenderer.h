@@ -8,6 +8,7 @@
 #include <vector>
 
 class MGSwapChain;
+class MGPipeline;
 
 enum MGUses
 {
@@ -110,6 +111,8 @@ public:
 	MGDevice PhysicalDevice;
 
 	MGSwapChain* SwapChain;
+
+	MGPipeline* Pipeline;
 
 	int GraphicQueueFamilyIndex;
 	int TransferQueueFamilyIndex;

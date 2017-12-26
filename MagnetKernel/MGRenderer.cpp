@@ -3,6 +3,7 @@
 #include "MGRenderer.h"
 //#include "MGImageLoad.h"
 #include "MGShare.h"
+#include "MGPipeline.h"
 
 const std::vector<uint16_t> indices = {
 	0, 1, 2, 2, 3, 0,
@@ -24,19 +25,23 @@ MGRenderer::MGRenderer(MGInstance* instance, MGWindow& window)
 	_initSamplers();
 	_initSemaphores();
 
-	_prepareRenderpass();
-	_prepareDescriptorSetLayout();
-	_prepareGraphicPipeline();
+	Pipeline = new MGPipeline(this);
+	Pipeline->initPipeline();
+	//_prepareRenderpass();///////////
+	//_prepareDescriptorSetLayout();///////////////
+	//_prepareGraphicPipeline();/////////////////
 
-	_createDescriptorPool();//!
-	SwapChain->createSwapchainFramebuffers(renderPass, true);
-	_allocateDescriptorSet();//!
+	//_createDescriptorPool();//!/////////////////
 
-	_prepareVerticesBuffer();
-	_prepareTextures();//!
-	_prepareUniformBuffer();
+	//_allocateDescriptorSet();//!////////////////////////
 
-	_writeDescriptorSet();//!
+	//_prepareVerticesBuffer();///////////
+	//_prepareTextures();//!////////////////////
+	//_prepareUniformBuffer();////////////////
+
+	//_writeDescriptorSet();//!/////////////////////
+
+	SwapChain->createSwapchainFramebuffers(Pipeline->renderPass, true);
 
 	_initPrimaryCommandBuffer();
 
@@ -52,24 +57,26 @@ void MGRenderer::releaseRenderer()
 {
 	//...
 	vkQueueWaitIdle(getQueue(MG_USE_GRAPHIC,0));
+	Pipeline->releasePipeline();
+	delete Pipeline;
+	/////////////////////////////////////////////////remove later
+	//vkDestroyBuffer(LogicalDevice, vertexBuffer, nullptr);
+	//vkFreeMemory(LogicalDevice, vertexBufferMemory, nullptr);
+	//vkDestroyBuffer(LogicalDevice, indexBuffer, nullptr);
+	//vkFreeMemory(LogicalDevice, indexBufferMemory, nullptr);
+	//vkDestroyBuffer(LogicalDevice, uniformBuffer, nullptr);
+	//vkFreeMemory(LogicalDevice, uniformBufferMemory, nullptr);
 
-	vkDestroyBuffer(LogicalDevice, vertexBuffer, nullptr);
-	vkFreeMemory(LogicalDevice, vertexBufferMemory, nullptr);
-	vkDestroyBuffer(LogicalDevice, indexBuffer, nullptr);
-	vkFreeMemory(LogicalDevice, indexBufferMemory, nullptr);
-	vkDestroyBuffer(LogicalDevice, uniformBuffer, nullptr);
-	vkFreeMemory(LogicalDevice, uniformBufferMemory, nullptr);
+	//vkDestroyImageView(LogicalDevice, texture.imageView,nullptr);
+	//vkDestroyImage(LogicalDevice, texture.image, nullptr);
+	//vkFreeMemory(LogicalDevice, texture.imageMemory, nullptr);
 
-	vkDestroyImageView(LogicalDevice, texture.imageView,nullptr);
-	vkDestroyImage(LogicalDevice, texture.image, nullptr);
-	vkFreeMemory(LogicalDevice, texture.imageMemory, nullptr);
-
-	vkDestroyDescriptorPool(LogicalDevice, descriptorPool, nullptr);
-	vkDestroyPipelineLayout(LogicalDevice, pipelineLayout, nullptr);
-	vkDestroyPipeline(LogicalDevice, graphicsPipeline, nullptr);
-	vkDestroyDescriptorSetLayout(LogicalDevice, descriptorSetLayout, nullptr);
-	vkDestroyRenderPass(LogicalDevice, renderPass, nullptr);
-
+	//vkDestroyDescriptorPool(LogicalDevice, descriptorPool, nullptr);
+	//vkDestroyPipelineLayout(LogicalDevice, pipelineLayout, nullptr);
+	//vkDestroyPipeline(LogicalDevice, graphicsPipeline, nullptr);
+	//vkDestroyDescriptorSetLayout(LogicalDevice, descriptorSetLayout, nullptr);
+	//vkDestroyRenderPass(LogicalDevice, renderPass, nullptr);
+	/////////////////////////////////////////
 	_deInitSemaphores();
 	_deInitSamplers();
 	SwapChain->releaseSwapChain();
@@ -80,22 +87,23 @@ void MGRenderer::releaseRenderer()
 
 void MGRenderer::updateUniforms()
 {
-	static auto startTime = std::chrono::high_resolution_clock::now();
+	//static auto startTime = std::chrono::high_resolution_clock::now();
 
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
+	//auto currentTime = std::chrono::high_resolution_clock::now();
+	//float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
 
-	UniformBufferObject ubo = {};
-	ubo.model = glm::rotate(glm::mat4(), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), SwapChain->SwapchainExtent.width / (float)SwapChain->SwapchainExtent.height, 0.1f, 10.0f);
-	//ubo.proj = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 10.0f);
-	ubo.proj[1][1] *= -1;
+	//UniformBufferObject ubo = {};
+	//ubo.model = glm::rotate(glm::mat4(), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//ubo.proj = glm::perspective(glm::radians(45.0f), SwapChain->SwapchainExtent.width / (float)SwapChain->SwapchainExtent.height, 0.1f, 10.0f);
+	////ubo.proj = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 10.0f);
+	//ubo.proj[1][1] *= -1;
 
-	void* data;
-	vkMapMemory(LogicalDevice, uniformBufferMemory, 0, sizeof(ubo), 0, &data);
-	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(LogicalDevice, uniformBufferMemory);
+	//void* data;
+	//vkMapMemory(LogicalDevice, uniformBufferMemory, 0, sizeof(ubo), 0, &data);
+	//memcpy(data, &ubo, sizeof(ubo));
+	//vkUnmapMemory(LogicalDevice, uniformBufferMemory);
+	Pipeline->updatePipeline();
 }
 
 void MGRenderer::renderFrame()
@@ -140,7 +148,7 @@ void MGRenderer::OnWindowResized()
 	vkQueueWaitIdle(getQueue(MG_USE_GRAPHIC, 0));
 	SwapChain->releaseSwapChain();
 	SwapChain->initSwapChain();
-	SwapChain->createSwapchainFramebuffers(renderPass, true);
+	SwapChain->createSwapchainFramebuffers(Pipeline->renderPass, true);
 	_recordPrimaryCommandBuffers();
 }
 
@@ -417,36 +425,40 @@ void MGRenderer::_recordPrimaryCommandBuffers()
 
 		vkBeginCommandBuffer(PrimaryCommandBuffer, &beginInfo);
 
-		VkRenderPassBeginInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = renderPass;
-		renderPassInfo.framebuffer = SwapChain->getSwapchainFramebuffer(i);
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = SwapChain->SwapchainExtent;
 
-		std::vector<VkClearValue> clearValues = {};
-		clearValues.resize(2);
-		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-		clearValues[1].depthStencil = { 1.0f, 0 };
-		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-		renderPassInfo.pClearValues = clearValues.data();
+		Pipeline->cmdExecute(PrimaryCommandBuffer, i);
+		//////////////////////////////////////////////////////////////////////
+		//VkRenderPassBeginInfo renderPassInfo = {};
+		//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		//renderPassInfo.renderPass = renderPass;
+		//renderPassInfo.framebuffer = SwapChain->getSwapchainFramebuffer(i);
+		//renderPassInfo.renderArea.offset = { 0, 0 };
+		//renderPassInfo.renderArea.extent = SwapChain->SwapchainExtent;
 
-		vkCmdBeginRenderPass(PrimaryCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		//std::vector<VkClearValue> clearValues = {};
+		//clearValues.resize(2);
+		//clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+		//clearValues[1].depthStencil = { 1.0f, 0 };
+		//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		//renderPassInfo.pClearValues = clearValues.data();
 
-		vkCmdBindPipeline(PrimaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+		//vkCmdBeginRenderPass(PrimaryCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		vkCmdSetViewport(PrimaryCommandBuffer, 0, 1, &createFullScreenViewport());
-		vkCmdSetScissor(PrimaryCommandBuffer, 0, 1, &createFullScreenRect());
+		//vkCmdBindPipeline(PrimaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-		//draw verticies
-		VkBuffer vertexBuffers[] = { vertexBuffer };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindDescriptorSets(PrimaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
-		vkCmdBindVertexBuffers(PrimaryCommandBuffer, 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(PrimaryCommandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-		//vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
-		vkCmdDrawIndexed(PrimaryCommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-		vkCmdEndRenderPass(PrimaryCommandBuffer);
+		//vkCmdSetViewport(PrimaryCommandBuffer, 0, 1, &createFullScreenViewport());
+		//vkCmdSetScissor(PrimaryCommandBuffer, 0, 1, &createFullScreenRect());
+
+		////draw verticies
+		//VkBuffer vertexBuffers[] = { vertexBuffer };
+		//VkDeviceSize offsets[] = { 0 };
+		//vkCmdBindDescriptorSets(PrimaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+		//vkCmdBindVertexBuffers(PrimaryCommandBuffer, 0, 1, vertexBuffers, offsets);
+		//vkCmdBindIndexBuffer(PrimaryCommandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		////vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+		//vkCmdDrawIndexed(PrimaryCommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+		//vkCmdEndRenderPass(PrimaryCommandBuffer);
+		//////////////////////////////////////////////////////////////////////////////////
 
 		vkEndCommandBuffer(PrimaryCommandBuffer);
 	}

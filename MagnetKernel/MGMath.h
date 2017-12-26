@@ -14,6 +14,7 @@ namespace mgm {
 
 	typedef glm::mat4 mat4;
 
+
 	template <typename T>
 	GLM_FUNC_QUALIFIER glm::tmat4x4<T, glm::defaultp> perspective(T fovy, T aspect, T zNear, T zFar) {
 		glm::tmat4x4<T, glm::defaultp> Result = glm::perspective(fovy, aspect, zNear, zFar);

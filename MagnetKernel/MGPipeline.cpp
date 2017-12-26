@@ -2,6 +2,11 @@
 #include "MGShare.h"
 #include "MGRenderer.h"
 
+const std::vector<uint16_t> indices = {
+	0, 1, 2, 2, 3, 0,
+	4, 5, 6, 6, 7, 4
+};
+
 
 MGPipeline::MGPipeline()
 {
@@ -15,6 +20,97 @@ MGPipeline::MGPipeline(MGRenderer * renderer)
 
 MGPipeline::~MGPipeline()
 {
+}
+
+void MGPipeline::initPipeline()
+{
+	_prepareRenderpass();
+	_prepareDescriptorSetLayout();
+	_prepareGraphicPipeline();
+
+	_createDescriptorPool();
+	_allocateDescriptorSet();
+
+	_prepareVerticesBuffer();
+	_prepareTextures();
+	_prepareUniformBuffer();
+
+	_writeDescriptorSet();
+}
+
+void MGPipeline::releasePipeline()
+{
+	vkDestroyBuffer(OwningRenderer->LogicalDevice, vertexBuffer, nullptr);
+	vkFreeMemory(OwningRenderer->LogicalDevice, vertexBufferMemory, nullptr);
+	vkDestroyBuffer(OwningRenderer->LogicalDevice, indexBuffer, nullptr);
+	vkFreeMemory(OwningRenderer->LogicalDevice, indexBufferMemory, nullptr);
+	vkDestroyBuffer(OwningRenderer->LogicalDevice, uniformBuffer, nullptr);
+	vkFreeMemory(OwningRenderer->LogicalDevice, uniformBufferMemory, nullptr);
+
+	vkDestroyImageView(OwningRenderer->LogicalDevice, texture.imageView, nullptr);
+	vkDestroyImage(OwningRenderer->LogicalDevice, texture.image, nullptr);
+	vkFreeMemory(OwningRenderer->LogicalDevice, texture.imageMemory, nullptr);
+
+	vkDestroyDescriptorPool(OwningRenderer->LogicalDevice, descriptorPool, nullptr);
+	vkDestroyPipelineLayout(OwningRenderer->LogicalDevice, pipelineLayout, nullptr);
+	vkDestroyPipeline(OwningRenderer->LogicalDevice, graphicsPipeline, nullptr);
+	vkDestroyDescriptorSetLayout(OwningRenderer->LogicalDevice, descriptorSetLayout, nullptr);
+	vkDestroyRenderPass(OwningRenderer->LogicalDevice, renderPass, nullptr);
+}
+
+void MGPipeline::cmdExecute(VkCommandBuffer commandBuffer, int frameBufferID)
+{
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderPass;
+	renderPassInfo.framebuffer = OwningRenderer->SwapChain->getSwapchainFramebuffer(frameBufferID);
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = OwningRenderer->SwapChain->SwapchainExtent;
+
+	std::vector<VkClearValue> clearValues = {};
+	clearValues.resize(2);
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+	vkCmdSetViewport(commandBuffer, 0, 1, &OwningRenderer->createFullScreenViewport());
+	vkCmdSetScissor(commandBuffer, 0, 1, &OwningRenderer->createFullScreenRect());
+
+
+	//draw verticies
+	VkBuffer vertexBuffers[] = { vertexBuffer };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	//vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+	vkCmdEndRenderPass(commandBuffer);
+}
+
+void MGPipeline::updatePipeline()
+{
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
+
+	UniformBufferObject ubo = {};
+	ubo.model = glm::rotate(glm::mat4(), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = mgm::perspective(glm::radians(45.0f), OwningRenderer->SwapChain->SwapchainExtent.width / (float)OwningRenderer->SwapChain->SwapchainExtent.height, 0.1f, 10.0f);
+	//ubo.proj = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 10.0f);
+	//ubo.proj[1][1] *= -1;
+
+	void* data;
+	vkMapMemory(OwningRenderer->LogicalDevice, uniformBufferMemory, 0, sizeof(ubo), 0, &data);
+	memcpy(data, &ubo, sizeof(ubo));
+	vkUnmapMemory(OwningRenderer->LogicalDevice, uniformBufferMemory);
 }
 
 void MGPipeline::_prepareRenderpass()
@@ -316,4 +412,131 @@ VkShaderModule MGPipeline::createShaderModule(const std::vector<char>& code) {
 	}
 
 	return shaderModule;
+}
+
+void MGPipeline::_prepareVerticesBuffer()
+{
+	std::vector<Vertex> vertices = {
+		{ { -0.5f, -0.5f, 0.0f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 0.0f } },
+		{ { 0.5f, -0.5f, 0.0f },{ 0.0f, 1.0f, 0.0f },{ 1.0f, 0.0f } },
+		{ { 0.5f, 0.5f, 0.0f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
+		{ { -0.5f, 0.5f, 0.0f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } },
+
+		{ { -0.5f, -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 0.0f } },
+		{ { 0.5f, -0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f },{ 1.0f, 0.0f } },
+		{ { 0.5f, 0.5f, -0.5f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
+		{ { -0.5f, 0.5f, -0.5f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } }
+	};
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+	OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(OwningRenderer->LogicalDevice, stagingBufferMemory);
+
+	OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+	OwningRenderer->copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+	vkDestroyBuffer(OwningRenderer->LogicalDevice, stagingBuffer, nullptr);
+	vkFreeMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, nullptr);
+	////////////////
+	///////////////
+	bufferSize = sizeof(indices[0]) * indices.size();
+
+	//VkBuffer stagingBuffer;
+	//VkDeviceMemory stagingBufferMemory;
+	OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data2;
+	vkMapMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data2);
+	memcpy(data2, indices.data(), (size_t)bufferSize);
+	vkUnmapMemory(OwningRenderer->LogicalDevice, stagingBufferMemory);
+
+	OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+
+	OwningRenderer->copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+
+	vkDestroyBuffer(OwningRenderer->LogicalDevice, stagingBuffer, nullptr);
+	vkFreeMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, nullptr);
+}
+
+void MGPipeline::_prepareTextures()
+{
+	MGRawImage img = mgLoadRawImage("textures/texture.jpg");
+	if (!img.pixels)
+	{
+		throw std::runtime_error("failed to load texture image!");
+	}
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	OwningRenderer->createBuffer(img.getImageSize(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	void* data;
+	vkMapMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, 0, img.getImageSize(), 0, &data);
+	memcpy(data, img.pixels, static_cast<size_t>(img.getImageSize()));
+	vkUnmapMemory(OwningRenderer->LogicalDevice, stagingBufferMemory);
+	stbi_image_free(img.pixels);
+
+	OwningRenderer->createImage(img.texWidth, img.texHeight, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture.image, texture.imageMemory);
+
+	OwningRenderer->transitionImageLayout(texture.image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	OwningRenderer->copyBufferToImage(stagingBuffer, texture.image, static_cast<uint32_t>(img.texWidth), static_cast<uint32_t>(img.texHeight));
+
+	OwningRenderer->transitionImageLayout(texture.image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	vkDestroyBuffer(OwningRenderer->LogicalDevice, stagingBuffer, nullptr);
+	vkFreeMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, nullptr);
+	VkImageSubresourceRange range = {};
+	range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	range.baseMipLevel = 0;
+	range.levelCount = 1;
+	range.baseArrayLayer = 0;
+	range.layerCount = 1;
+	texture.imageView = OwningRenderer->createImageView2D(texture.image, VK_FORMAT_R8G8B8A8_UNORM, range);
+
+	texture.sampler = OwningRenderer->TextureSamplers.MG_SAMPLER_NORMAL;
+}
+
+void MGPipeline::_prepareUniformBuffer()
+{
+	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+	OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffer, uniformBufferMemory);
+}
+
+void MGPipeline::_writeDescriptorSet()
+{
+
+	VkDescriptorBufferInfo bufferInfo = {};
+	bufferInfo.buffer = uniformBuffer;
+	bufferInfo.offset = 0;
+	bufferInfo.range = sizeof(UniformBufferObject);
+
+	VkDescriptorImageInfo imageInfo = {};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = texture.imageView;
+	imageInfo.sampler = texture.sampler;
+
+	std::vector<VkWriteDescriptorSet> descriptorWrites = {};
+	descriptorWrites.resize(2);
+	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[0].dstSet = descriptorSet;
+	descriptorWrites[0].dstBinding = 0;
+	descriptorWrites[0].dstArrayElement = 0;
+	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrites[0].descriptorCount = 1;
+	descriptorWrites[0].pBufferInfo = &bufferInfo;
+
+	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[1].dstSet = descriptorSet;
+	descriptorWrites[1].dstBinding = 1;
+	descriptorWrites[1].dstArrayElement = 0;
+	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrites[1].descriptorCount = 1;
+	descriptorWrites[1].pImageInfo = &imageInfo;
+
+	vkUpdateDescriptorSets(OwningRenderer->LogicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
