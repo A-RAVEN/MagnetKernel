@@ -431,19 +431,19 @@ void MGPipeline::_prepareVerticesBuffer()
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-	OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexBuffer, vertexBufferMemory);
 
 	void* data;
-	vkMapMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(OwningRenderer->LogicalDevice, vertexBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, vertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(OwningRenderer->LogicalDevice, stagingBufferMemory);
+	vkUnmapMemory(OwningRenderer->LogicalDevice, vertexBufferMemory);
 
-	OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+	//OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-	OwningRenderer->copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+	//OwningRenderer->copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
-	vkDestroyBuffer(OwningRenderer->LogicalDevice, stagingBuffer, nullptr);
-	vkFreeMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, nullptr);
+	//vkDestroyBuffer(OwningRenderer->LogicalDevice, stagingBuffer, nullptr);
+	//vkFreeMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, nullptr);
 	////////////////
 	///////////////
 	bufferSize = sizeof(indices[0]) * indices.size();

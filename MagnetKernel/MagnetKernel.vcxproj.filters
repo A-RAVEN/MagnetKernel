@@ -60,6 +60,9 @@
     <ClCompile Include="MGPipeline.cpp">
       <Filter>源文件\Kernel\PipeLine</Filter>
     </ClCompile>
+    <ClCompile Include="MGModel.cpp">
+      <Filter>源文件\Share</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BUILD_OPTIONS.h">
@@ -90,6 +93,9 @@
       <Filter>头文件\Share</Filter>
     </ClInclude>
     <ClInclude Include="MGImageLoad.h">
+      <Filter>头文件\Share</Filter>
+    </ClInclude>
+    <ClInclude Include="MGModel.h">
       <Filter>头文件\Share</Filter>
     </ClInclude>
   </ItemGroup>

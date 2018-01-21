@@ -23,8 +23,8 @@ int main() {
 		glfwInit();
 #endif
 
-		MGInstance instance("TEST Project");
-		MGWindow window("test", 800, 600);
+		MGInstance instance("Magnet Kernel");
+		MGWindow window("Magnet Kernel", 800, 600);
 		MGCheckVKResultERR(window.createWindowSurface(instance.instance),"Failed to create Window Surface");
 		VkSurfaceKHR surface;
 		if (window.getWindowSurface(&surface)) {

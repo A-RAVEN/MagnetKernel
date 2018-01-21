@@ -507,7 +507,7 @@ void MGRenderer::_deInitSemaphores()
 {
 	RendererSemaphores.deinitSemaphores(LogicalDevice);
 }
-
+/*
 void MGRenderer::_prepareRenderpass()
 {
 	//mgCreateColorAttachment_SwapchainPresent(VkFormat swapchainFormat)
@@ -933,7 +933,7 @@ VkShaderModule MGRenderer::createShaderModule(const std::vector<char>& code) {
 
 	return shaderModule;
 }
-
+*/
 VkCommandBuffer MGRenderer::beginSingleTimeCommands(VkCommandPool cmdPool)
 {
 	VkCommandBufferAllocateInfo allocInfo = {};
@@ -954,7 +954,7 @@ VkCommandBuffer MGRenderer::beginSingleTimeCommands(VkCommandPool cmdPool)
 	return commandBuffer;
 }
 
-void MGRenderer::endSingleTimeCommands(VkCommandBuffer commandBuffer, VkQueue submitqueue, VkCommandPool cmdPool)
+void MGRenderer::endSingleTimeCommands(VkCommandBuffer commandBuffer, VkQueue submitqueue, VkCommandPool cmdPool, MGArrayStruct<VkSemaphore> waitSemaphores, MGArrayStruct<VkSemaphore> signalSemaphores)
 {
 	vkEndCommandBuffer(commandBuffer);
 

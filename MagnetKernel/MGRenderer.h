@@ -53,6 +53,13 @@ struct Vertex {
 	}
 };
 
+template <class T>
+struct MGArrayStruct {
+	uint32_t length;
+	T* data;
+
+};
+
 struct UniformBufferObject {
 	mgm::mat4 model;
 	mgm::mat4 view;
@@ -170,38 +177,38 @@ private:
 	void _deInitSemaphores();
 
 	//////////////////////////测试基本的绘图功能，日后可能封装到其它类中
-	VkRenderPass renderPass;//与输出的图像有关
-	VkPipelineLayout pipelineLayout;//与输入的uniform数据有关
-	VkDescriptorSetLayout descriptorSetLayout;//uniform数据的结构，即一个Pipeline中有哪些uniform输入
-	VkDescriptorPool descriptorPool;
-	VkDescriptorSet descriptorSet;//由uniform数据Buffer和ImageView&Sampler组成的对象，需要与SetLayout所描述的结构相对应
-	VkPipeline graphicsPipeline;
+	//VkRenderPass renderPass;//与输出的图像有关
+	//VkPipelineLayout pipelineLayout;//与输入的uniform数据有关
+	//VkDescriptorSetLayout descriptorSetLayout;//uniform数据的结构，即一个Pipeline中有哪些uniform输入
+	//VkDescriptorPool descriptorPool;
+	//VkDescriptorSet descriptorSet;//由uniform数据Buffer和ImageView&Sampler组成的对象，需要与SetLayout所描述的结构相对应
+	//VkPipeline graphicsPipeline;
 
-	Texture texture = {};
-	VkBuffer uniformBuffer;
-	VkDeviceMemory uniformBufferMemory;
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
+	//Texture texture = {};
+	//VkBuffer uniformBuffer;
+	//VkDeviceMemory uniformBufferMemory;
+	//VkBuffer vertexBuffer;
+	//VkDeviceMemory vertexBufferMemory;
+	//VkBuffer indexBuffer;
+	//VkDeviceMemory indexBufferMemory;
 
-	void _prepareRenderpass();//深度缓冲在RenderPass中设置Attachment，同时在Pipeline中设置DepthStencilState,最后还要在Framebuffer中有对应的图片输出
-	void _prepareDescriptorSetLayout();
-	void _prepareGraphicPipeline();
+	//void _prepareRenderpass();//深度缓冲在RenderPass中设置Attachment，同时在Pipeline中设置DepthStencilState,最后还要在Framebuffer中有对应的图片输出
+	//void _prepareDescriptorSetLayout();
+	//void _prepareGraphicPipeline();
 
-	void _createDescriptorPool();//!
-	void _allocateDescriptorSet();//!
+	//void _createDescriptorPool();//!
+	//void _allocateDescriptorSet();//!
 
-	void _prepareVerticesBuffer();
-	void _prepareTextures();//!
-	void _prepareUniformBuffer();
-	void _writeDescriptorSet();//!
+	//void _prepareVerticesBuffer();
+	//void _prepareTextures();//!
+	//void _prepareUniformBuffer();
+	//void _writeDescriptorSet();//!
 
-	VkShaderModule createShaderModule(const std::vector<char>& code);
+	//VkShaderModule createShaderModule(const std::vector<char>& code);
 	///////////////////////////
 
 	VkCommandBuffer beginSingleTimeCommands(VkCommandPool cmdPool);
-	void endSingleTimeCommands(VkCommandBuffer commandBuffer, VkQueue submitqueue, VkCommandPool cmdPool);
+	void endSingleTimeCommands(VkCommandBuffer commandBuffer, VkQueue submitqueue, VkCommandPool cmdPool, MGArrayStruct<VkSemaphore> waitSemaphores = { 0,nullptr }, MGArrayStruct<VkSemaphore> signalSemaphores = { 0,nullptr });
 
 
 };
