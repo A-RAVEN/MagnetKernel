@@ -52,6 +52,7 @@ class MGRenderer;
 //
 //};
 
+class MGModel;
 class MGPipeline
 {
 public:
@@ -65,6 +66,7 @@ public:
 	void releasePipeline();
 	void cmdExecute(VkCommandBuffer commandBuffer,int frameBufferID);
 	void updatePipeline();
+	MGModel* model;
 private:
 
 	MGRenderer* OwningRenderer;

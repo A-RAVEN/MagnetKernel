@@ -23,6 +23,19 @@ struct Vertex {
 	glm::vec3 color;
 	glm::vec2 texCoord;
 
+	static bool Equal(Vertex* vtA,Vertex* vtB)
+	{
+		//return vtA->pos == vtB->pos && vtA->color == vtB->color && vtA->texCoord == vtB->texCoord;
+		//glm::vec3 V3EPSILON(0.00001f);
+		//glm::vec2 V2EPSILON(0.00001f);
+		//glm::vec3 delta_pos = glm::abs(vtA->pos - vtB->pos);
+		//glm::vec3 delta_color = glm::abs(vtA->color - vtB->color);
+		//glm::vec2 delta_tex = glm::abs(vtA->texCoord - vtB->texCoord);
+		//return glm::max(glm::max(delta_pos.x, delta_pos.y), delta_pos.z) < 0.00001f && glm::max(glm::max(delta_color.x, delta_color.y), delta_color.z) < 0.00001f && glm::max(delta_tex.x, delta_tex.y) < 0.00001f;
+		return glm::all(glm::epsilonEqual(vtA->pos, vtB->pos, 0.00001f)) && glm::all(glm::epsilonEqual(vtA->color, vtB->color, 0.00001f)) && glm::all(glm::epsilonEqual(vtA->texCoord, vtB->texCoord, 0.00001f));
+		//return glm::all(glm::equal(vtA->pos, vtB->pos)) && glm::all(glm::equal(vtA->color, vtB->color)) && glm::all(glm::equal(vtA->texCoord, vtB->texCoord));
+	}
+
 	static VkVertexInputBindingDescription getBindingDescription() {
 		VkVertexInputBindingDescription bindingDescription = {};
 		bindingDescription.binding = 0;
@@ -144,6 +157,7 @@ public:
 	VkQueue getQueue(MGUses use, int idealID);
 	VkViewport createFullScreenViewport();
 	VkRect2D createFullScreenRect();
+	VkFence getPrimaryCmdBufferFence(int ID);
 private:
 
 	VkSurfaceKHR OutputSurface;
@@ -163,6 +177,8 @@ private:
 	std::vector<VkQueue>ActiveQueues;
 	std::vector<VkCommandPool>CommandPools;
 
+	std::vector<VkFence> PrimaryCommandBufferFences = {};
+	std::vector<bool> PrimaryFenceInited = {};
 	std::vector<VkCommandBuffer> PrimaryCommandBuffers = {};
 
 	void _selectPhysicalDevice(MGInstance* instance, VkSurfaceKHR windowSurface);
@@ -170,7 +186,9 @@ private:
 	void _initCommandPools();
 	void _deInitCommandPools();
 	void _initPrimaryCommandBuffer();
+	void _deinitRenderFences();
 	void _recordPrimaryCommandBuffers();
+	void _recordPrimaryCommandBuffer(uint8_t index);
 	void _initSamplers();
 	void _deInitSamplers();
 	void _initSemaphores();

@@ -1,11 +1,12 @@
 #include "MGPipeline.h"
 #include "MGShare.h"
 #include "MGRenderer.h"
+#include "MGModel.h"
 
-const std::vector<uint16_t> indices = {
-	0, 1, 2, 2, 3, 0,
-	4, 5, 6, 6, 7, 4
-};
+//const std::vector<uint16_t> indices = {
+//	0, 1, 2, 2, 3, 0,
+//	4, 5, 6, 6, 7, 4
+//};
 
 
 MGPipeline::MGPipeline()
@@ -40,6 +41,7 @@ void MGPipeline::initPipeline()
 
 void MGPipeline::releasePipeline()
 {
+	model->releaseBuffers();
 	vkDestroyBuffer(OwningRenderer->LogicalDevice, vertexBuffer, nullptr);
 	vkFreeMemory(OwningRenderer->LogicalDevice, vertexBufferMemory, nullptr);
 	vkDestroyBuffer(OwningRenderer->LogicalDevice, indexBuffer, nullptr);
@@ -69,7 +71,7 @@ void MGPipeline::cmdExecute(VkCommandBuffer commandBuffer, int frameBufferID)
 
 	std::vector<VkClearValue> clearValues = {};
 	clearValues.resize(2);
-	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[0].color = { 0.0f, 0.4f, 1.0f, 1.0f };
 	clearValues[1].depthStencil = { 1.0f, 0 };
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 	renderPassInfo.pClearValues = clearValues.data();
@@ -86,10 +88,22 @@ void MGPipeline::cmdExecute(VkCommandBuffer commandBuffer, int frameBufferID)
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
-	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-	//vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
-	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+
+	//// Inheritance info for the secondary command buffers
+	//VkCommandBufferInheritanceInfo inheritanceInfo = {};
+	//inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+	//inheritanceInfo.renderPass = renderPass;
+	//// Secondary command buffer also use the currently active framebuffer
+	//inheritanceInfo.framebuffer = OwningRenderer->SwapChain->getSwapchainFramebuffer(frameBufferID);
+
+	//model->NotationRecordCmdBuffer(inheritanceInfo, OwningRenderer->getPrimaryCmdBufferFence(frameBufferID));
+	//VkCommandBuffer buffer = model->GetCurrentCmdBuffer();
+	//vkCmdExecuteCommands(commandBuffer, 1, &buffer);
+	model->MGCmdDraw(commandBuffer);
+
+	//vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	//vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);///////!!!!!!!!!!!ATTENTION:VK_INDEX_TYPE
+	//vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(model->IndexList.size()), 1, 0, 0, 0);
 	vkCmdEndRenderPass(commandBuffer);
 }
 
@@ -101,9 +115,9 @@ void MGPipeline::updatePipeline()
 	float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
 
 	UniformBufferObject ubo = {};
-	ubo.model = glm::rotate(glm::mat4(), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = mgm::perspective(glm::radians(45.0f), OwningRenderer->SwapChain->SwapchainExtent.width / (float)OwningRenderer->SwapChain->SwapchainExtent.height, 0.1f, 10.0f);
+	ubo.model = glm::rotate(glm::mat4(), time * glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(glm::vec3(20.0f, 20.0f, 20.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = mgm::perspective(glm::radians(45.0f), OwningRenderer->SwapChain->SwapchainExtent.width / (float)OwningRenderer->SwapChain->SwapchainExtent.height, 0.1f, 200.0f);
 	//ubo.proj = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 10.0f);
 	//ubo.proj[1][1] *= -1;
 
@@ -323,7 +337,12 @@ void MGPipeline::_prepareGraphicPipeline()
 	depthStencil.front = {}; // Optional
 	depthStencil.back = {}; // Optional
 
-							//Pipeline Layout,定义输入的uniform变量
+	VkPushConstantRange pushConstantRange = {};
+	pushConstantRange.offset = 0;
+	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	pushConstantRange.size = sizeof(UniformBufferObject);
+
+	//Pipeline Layout,定义输入的uniform变量
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 1; // Optional
@@ -416,26 +435,29 @@ VkShaderModule MGPipeline::createShaderModule(const std::vector<char>& code) {
 
 void MGPipeline::_prepareVerticesBuffer()
 {
-	std::vector<Vertex> vertices = {
-		{ { -0.5f, -0.5f, 0.0f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 0.0f } },
-		{ { 0.5f, -0.5f, 0.0f },{ 0.0f, 1.0f, 0.0f },{ 1.0f, 0.0f } },
-		{ { 0.5f, 0.5f, 0.0f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
-		{ { -0.5f, 0.5f, 0.0f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } },
+	//std::vector<Vertex> vertices = {
+	//	{ { -0.5f, -0.5f, 0.0f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 0.0f } },
+	//	{ { 0.5f, -0.5f, 0.0f },{ 0.0f, 1.0f, 0.0f },{ 1.0f, 0.0f } },
+	//	{ { 0.5f, 0.5f, 0.0f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
+	//	{ { -0.5f, 0.5f, 0.0f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } },
 
-		{ { -0.5f, -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 0.0f } },
-		{ { 0.5f, -0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f },{ 1.0f, 0.0f } },
-		{ { 0.5f, 0.5f, -0.5f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
-		{ { -0.5f, 0.5f, -0.5f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } }
-	};
+	//	{ { -0.5f, -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 0.0f } },
+	//	{ { 0.5f, -0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f },{ 1.0f, 0.0f } },
+	//	{ { 0.5f, 0.5f, -0.5f },{ 0.0f, 0.0f, 1.0f },{ 1.0f, 1.0f } },
+	//	{ { -0.5f, 0.5f, -0.5f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } }
+	//};
+	model = new MGModel(OwningRenderer);
+	model->loadOBJ("../Assets/CarBody0.obj");
+	model->buildBuffers();
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+	VkDeviceSize bufferSize = sizeof(model->VertexList[0]) * model->VertexList.size();
 	OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexBuffer, vertexBufferMemory);
 
 	void* data;
 	vkMapMemory(OwningRenderer->LogicalDevice, vertexBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferSize);
+	memcpy(data, model->VertexList.data(), (size_t)bufferSize);
 	vkUnmapMemory(OwningRenderer->LogicalDevice, vertexBufferMemory);
 
 	//OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
@@ -446,7 +468,7 @@ void MGPipeline::_prepareVerticesBuffer()
 	//vkFreeMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, nullptr);
 	////////////////
 	///////////////
-	bufferSize = sizeof(indices[0]) * indices.size();
+	bufferSize = sizeof(model->IndexList[0]) * model->IndexList.size();
 
 	//VkBuffer stagingBuffer;
 	//VkDeviceMemory stagingBufferMemory;
@@ -454,7 +476,7 @@ void MGPipeline::_prepareVerticesBuffer()
 
 	void* data2;
 	vkMapMemory(OwningRenderer->LogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data2);
-	memcpy(data2, indices.data(), (size_t)bufferSize);
+	memcpy(data2, model->IndexList.data(), (size_t)bufferSize);
 	vkUnmapMemory(OwningRenderer->LogicalDevice, stagingBufferMemory);
 
 	OwningRenderer->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
