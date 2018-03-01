@@ -3,7 +3,7 @@
 #include "MGRenderer.h"
 //#include "MGImageLoad.h"
 #include "MGShare.h"
-#include "MGPipeline.h"
+#include "MGPipelineManager.h"
 
 const std::vector<uint16_t> indices = {
 	0, 1, 2, 2, 3, 0,
@@ -12,10 +12,16 @@ const std::vector<uint16_t> indices = {
 
 MGRenderer::MGRenderer()
 {
+	UNIFORM_BIND_POINT_CAMERA = 0;
+	UNIFORM_BIND_POINT_MODEL_MATRIX = UNIFORM_BIND_POINT_CAMERA + sizeof(UniformBufferObject);
+	UNIFORM_BIND_POINT_LIGHT = UNIFORM_BIND_POINT_MODEL_MATRIX + sizeof(mgm::mat4);
 }
 
 MGRenderer::MGRenderer(MGInstance* instance, MGWindow& window)
 {
+	UNIFORM_BIND_POINT_CAMERA = 0;
+	UNIFORM_BIND_POINT_MODEL_MATRIX = UNIFORM_BIND_POINT_CAMERA + sizeof(UniformBufferObject);
+	UNIFORM_BIND_POINT_LIGHT = UNIFORM_BIND_POINT_MODEL_MATRIX + sizeof(mgm::mat4);
 	VkSurfaceKHR surface;
 	window.getWindowSurface(&surface);
 	_selectPhysicalDevice(instance, surface);
@@ -25,7 +31,7 @@ MGRenderer::MGRenderer(MGInstance* instance, MGWindow& window)
 	_initSamplers();
 	_initSemaphores();
 
-	Pipeline = new MGPipeline(this);
+	Pipeline = new MGPipelineManager(this);
 	Pipeline->initPipeline();
 
 
@@ -58,7 +64,7 @@ void MGRenderer::releaseRenderer()
 
 void MGRenderer::updateUniforms()
 {
-	Pipeline->updatePipeline();
+	//Pipeline->updatePipeline();
 }
 
 void MGRenderer::renderFrame()
@@ -174,7 +180,7 @@ void MGRenderer::_selectPhysicalDevice(MGInstance* instance, VkSurfaceKHR window
 			{
 				VkBool32 presentSupport = false;
 				vkGetPhysicalDeviceSurfaceSupportKHR(device.device, index, windowSurface, &presentSupport);
-				if (device.queueFamilies[index].queueFlags & filter == filter && presentSupport)
+				if ((device.queueFamilies[index].queueFlags & filter) == filter && presentSupport)
 				{
 					selected = true;
 					PhysicalDevice = device;
@@ -280,12 +286,12 @@ void MGRenderer::_initLogicalDevice()
 //获取不同功能的Queue
 	for (int queueFamilyIndex : uniqueQueueFamilies) 
 	{
-		for (int queueIndex = 0; queueIndex < PhysicalDevice.queueFamilies[queueFamilyIndex].queueCount; queueIndex++) {
+		for (uint32_t queueIndex = 0; queueIndex < PhysicalDevice.queueFamilies[queueFamilyIndex].queueCount; queueIndex++) {
 		//for (int queueIndex = 0; queueIndex < 1; queueIndex++) {
 			VkQueue queue;
 			vkGetDeviceQueue(LogicalDevice, queueFamilyIndex, queueIndex, &queue);
 			ActiveQueues.push_back(queue);
-			int lastIndex = ActiveQueues.size() - 1;
+			uint32_t lastIndex = ActiveQueues.size() - 1;
 			if (queueFamilyIndex == GraphicQueueFamilyIndex)
 			{
 				GraphicQueuesIndices.push_back(lastIndex);
@@ -322,7 +328,7 @@ void MGRenderer::_initCommandPools()
 		vkCreateCommandPool(LogicalDevice, &poolInfo, nullptr, &pool);
 
 		CommandPools.push_back(pool);
-		int lastInex = CommandPools.size() - 1;
+		uint32_t lastInex = CommandPools.size() - 1;
 
 		if (Index == GraphicQueueFamilyIndex)
 		{
@@ -359,7 +365,7 @@ void MGRenderer::_initPrimaryCommandBuffer()
 	VkFenceCreateInfo fenceCreateInfo{};
 	fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fenceCreateInfo.flags = 0;
-	for (int i = 0; i < size; ++i)
+	for (uint32_t i = 0; i < size; ++i)
 	{
 		VkFence renderFence;
 		vkCreateFence(LogicalDevice, &fenceCreateInfo, NULL, &renderFence);
@@ -675,16 +681,16 @@ VkQueue MGRenderer::getQueue(MGUses use, int idealID)
 	switch (use)
 	{
 	case MG_USE_GRAPHIC:
-		return ActiveQueues[GraphicQueuesIndices[std::min<int>(GraphicQueuesIndices.size() - 1, idealID)]];
+		return ActiveQueues[GraphicQueuesIndices[std::min<uint32_t>(GraphicQueuesIndices.size() - 1, idealID)]];
 		break;
 	case MG_USE_TRANSFER:
-		return ActiveQueues[TransferQueuesIndices[std::min<int>(TransferQueuesIndices.size() - 1, idealID)]];
+		return ActiveQueues[TransferQueuesIndices[std::min<uint32_t>(TransferQueuesIndices.size() - 1, idealID)]];
 		break;
 	case MG_USE_COMPUTE:
-		return ActiveQueues[ComputeQueuesIndices[std::min<int>(ComputeQueuesIndices.size() - 1, idealID)]];
+		return ActiveQueues[ComputeQueuesIndices[std::min<uint32_t>(ComputeQueuesIndices.size() - 1, idealID)]];
 		break;
 	case MG_USE_PRESENT:
-		return ActiveQueues[PresentQueuesIndices[std::min<int>(PresentQueuesIndices.size() - 1, idealID)]];
+		return ActiveQueues[PresentQueuesIndices[std::min<uint32_t>(PresentQueuesIndices.size() - 1, idealID)]];
 		break;
 	default:
 		MGThrowError(true, "Cannot get ideal queue");
@@ -877,7 +883,7 @@ VkFramebuffer MGSwapChain::getSwapchainFramebuffer(int index)
 	return SwapchainFramebuffers[index];
 }
 
-int MGSwapChain::getSwapchainImageSize()
+uint32_t MGSwapChain::getSwapchainImageSize()
 {
 	return SwapchainImages.size();
 }

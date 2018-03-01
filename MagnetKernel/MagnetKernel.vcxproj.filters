@@ -57,11 +57,17 @@
     <ClCompile Include="MGWindow_Share.cpp">
       <Filter>源文件\Kernel</Filter>
     </ClCompile>
-    <ClCompile Include="MGPipeline.cpp">
-      <Filter>源文件\Kernel\PipeLine</Filter>
-    </ClCompile>
     <ClCompile Include="MGModel.cpp">
       <Filter>源文件\Share</Filter>
+    </ClCompile>
+    <ClCompile Include="MGRenderingManager.cpp">
+      <Filter>源文件\Kernel\PipeLine</Filter>
+    </ClCompile>
+    <ClCompile Include="MGModelInstance.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MGPipelineManager.cpp">
+      <Filter>源文件\Kernel\PipeLine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,9 +92,6 @@
     <ClInclude Include="MGRenderer.h">
       <Filter>头文件\Kernel</Filter>
     </ClInclude>
-    <ClInclude Include="MGPipeline.h">
-      <Filter>头文件\Kernel\PipeLine</Filter>
-    </ClInclude>
     <ClInclude Include="MGShare.h">
       <Filter>头文件\Share</Filter>
     </ClInclude>
@@ -97,6 +100,15 @@
     </ClInclude>
     <ClInclude Include="MGModel.h">
       <Filter>头文件\Share</Filter>
+    </ClInclude>
+    <ClInclude Include="MGRenderingManager.h">
+      <Filter>头文件\Kernel\PipeLine</Filter>
+    </ClInclude>
+    <ClInclude Include="MGModelInstance.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MGPipelineManager.h">
+      <Filter>头文件\Kernel\PipeLine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

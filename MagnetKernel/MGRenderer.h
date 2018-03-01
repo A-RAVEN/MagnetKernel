@@ -8,7 +8,7 @@
 #include <vector>
 
 class MGSwapChain;
-class MGPipeline;
+class MGPipelineManager;
 
 enum MGUses
 {
@@ -73,8 +73,66 @@ struct MGArrayStruct {
 
 };
 
-struct UniformBufferObject {
+struct TransformObj {
 	mgm::mat4 model;
+	mgm::mat4 rotation;
+	mgm::mat4 scale;
+	mgm::mat4 translation;
+	bool needUpdate = false;
+	TransformObj* Parent = nullptr;
+	TransformObj()
+	{
+		model = mgm::mat4(1.0f);
+		rotation = mgm::mat4(1.0f);
+		scale = mgm::mat4(1.0f);
+		translation = mgm::mat4(1.0f);
+		needUpdate = false;
+		Parent = nullptr;
+	}
+	void relativeTranslate(mgm::vec3 move)
+	{
+		translation = glm::translate(translation, move);
+		needUpdate = true;
+	}
+	void setRelativePosition(mgm::vec3 pos)
+	{
+		translation = glm::translate(mgm::mat4(1.0f), pos);
+		needUpdate = true;
+	}
+	void setLocalRotation(float eulerAngle, glm::vec3 rotAxis)
+	{
+		rotation = glm::rotate(glm::mat4(), glm::radians(eulerAngle), rotAxis);
+		needUpdate = true;
+	}
+	void setRelativeScale(mgm::vec3 scal)
+	{
+		scale = glm::scale(mgm::mat4(1.0f), scal);
+		needUpdate = true;
+	}
+	mgm::mat4  getTransformMat()
+	{
+		refreshTransform();
+		return model;
+	}
+	void refreshTransform()
+	{
+		if (needUpdate)
+		{
+			if (Parent != nullptr)
+			{
+				model = Parent->getTransformMat() * translation * scale * rotation;
+			}
+			else
+			{
+				model = translation * scale * rotation;
+			}
+		}
+	}
+
+
+};
+
+struct UniformBufferObject {
 	mgm::mat4 view;
 	mgm::mat4 proj;
 };
@@ -113,6 +171,10 @@ struct MGRendererSemaphores {
 class MGRenderer
 {
 public:
+	uint32_t UNIFORM_BIND_POINT_CAMERA;
+	uint32_t UNIFORM_BIND_POINT_MODEL_MATRIX;
+	uint32_t UNIFORM_BIND_POINT_LIGHT;
+
 	//Base Functions
 	MGRenderer();
 	MGRenderer(MGInstance* instance,MGWindow& window);
@@ -132,7 +194,7 @@ public:
 
 	MGSwapChain* SwapChain;
 
-	MGPipeline* Pipeline;
+	MGPipelineManager* Pipeline;
 
 	int GraphicQueueFamilyIndex;
 	int TransferQueueFamilyIndex;
@@ -242,7 +304,7 @@ public:
 	void destroySwapchainFramebuffers();
 
 	VkFramebuffer getSwapchainFramebuffer(int index);
-	int getSwapchainImageSize();
+	uint32_t getSwapchainImageSize();
 
 	VkSwapchainKHR Swapchain;
 

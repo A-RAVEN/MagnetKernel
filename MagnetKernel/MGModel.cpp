@@ -31,21 +31,21 @@ MGModel::~MGModel()
 {
 }
 
-void tmpaddVertex(std::vector<Vertex>* vertexList, std::vector<uint32_t>* indexList, Vertex* newVertex)
-{
-	long end = vertexList->size();
-	long begin = mgm::max<long>(end - 50, 0);
-	for (uint32_t i = begin; i < end; i++)
-	{
-		if (Vertex::Equal(&(*vertexList)[i],newVertex))
-		{
-			indexList->push_back(i);
-			return;
-		}
-	}
-	indexList->push_back(vertexList->size());
-	vertexList->push_back(*newVertex);
-}
+//void tmpaddVertex(std::vector<Vertex>* vertexList, std::vector<uint32_t>* indexList, Vertex* newVertex)
+//{
+//	long end = vertexList->size();
+//	long begin = mgm::max<long>(end - 50, 0);
+//	for (uint32_t i = begin; i < end; i++)
+//	{
+//		if (Vertex::Equal(&(*vertexList)[i],newVertex))
+//		{
+//			indexList->push_back(i);
+//			return;
+//		}
+//	}
+//	indexList->push_back(vertexList->size());
+//	vertexList->push_back(*newVertex);
+//}
 
 void addVertex(std::string key, std::map<std::string, uint32_t >* search_map, std::vector<Vertex>* vertexList, std::vector<uint32_t>* indexList, Vertex* newVertex)
 {
@@ -89,6 +89,7 @@ bool MGModel::loadOBJ(const std::string& path)
 					//¶¥µãUV
 					mgm::vec2 newVT(0.0f, 0.0f);
 					s >> head >> newVT.s >> newVT.t;
+					newVT.t = 1.0f - newVT.t;
 					vtGroup.push_back(newVT);
 					attributes_state[1] = true;
 				}
@@ -114,7 +115,7 @@ bool MGModel::loadOBJ(const std::string& path)
 				//Ãæ
 				int face_type = 0;
 				line.erase(line.find_last_not_of(" ") + 1);
-				for (int k = line.size() - 1; k >= 0; k--)
+				for (uint32_t k = line.size() - 1; k > 0; k--)
 				{
 					if (line[k] == ' ')
 						face_type++;
@@ -132,7 +133,7 @@ bool MGModel::loadOBJ(const std::string& path)
 					{
 						s >> face_string;
 						std::string fs = face_string;
-						for (int k = fs.size() - 1; k >= 0; k--)
+						for (uint32_t k = fs.size() - 1; k > 0; k--)
 						{
 							if (fs[k] == '/')
 							{
@@ -198,7 +199,7 @@ bool MGModel::loadOBJ(const std::string& path)
 					{
 						s >> face_strings[i];
 						std::string fs = face_strings[i];
-						for (int k = fs.size() - 1; k >= 0; k--)
+						for (uint32_t k = fs.size() - 1; k > 0; k--)
 						{
 							if (fs[k] == '/')
 							{

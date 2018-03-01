@@ -3,7 +3,7 @@
 #include<vector>
 #include"Platform.h"
 
-class Vertex;
+struct Vertex;
 class MGRenderer;
 struct CmdBuffers 
 {
