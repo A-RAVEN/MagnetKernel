@@ -40,6 +40,7 @@
     <ClCompile Include="MGInstance.cpp" />
     <ClCompile Include="MGModel.cpp" />
     <ClCompile Include="MGModelInstance.cpp" />
+    <ClCompile Include="MGPipeLine.cpp" />
     <ClCompile Include="MGPipelineManager.cpp" />
     <ClCompile Include="MGRenderer.cpp" />
     <ClCompile Include="MGWindow_Share.cpp" />
@@ -55,6 +56,7 @@
     <ClInclude Include="MGMath.h" />
     <ClInclude Include="MGModel.h" />
     <ClInclude Include="MGModelInstance.h" />
+    <ClInclude Include="MGPipeLine.h" />
     <ClInclude Include="MGPipelineManager.h" />
     <ClInclude Include="MGRenderer.h" />
     <ClInclude Include="MGShare.h" />

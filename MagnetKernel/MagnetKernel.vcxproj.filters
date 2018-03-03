@@ -69,6 +69,9 @@
     <ClCompile Include="MGPipelineManager.cpp">
       <Filter>源文件\Kernel\PipeLine</Filter>
     </ClCompile>
+    <ClCompile Include="MGPipeLine.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BUILD_OPTIONS.h">
@@ -109,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="MGPipelineManager.h">
       <Filter>头文件\Kernel\PipeLine</Filter>
+    </ClInclude>
+    <ClInclude Include="MGPipeLine.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
