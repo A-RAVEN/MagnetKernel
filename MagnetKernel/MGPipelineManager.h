@@ -9,6 +9,22 @@ class MGRenderer;
 class MGModel;
 class MGModelInstance;
 class MGPipeLine;
+
+struct MGPipelineInfo
+{
+private:
+	std::vector<VkPipelineShaderStageCreateInfo> shader_stage_infos;
+	std::vector<VkDynamicState> dynamicStates;
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+	VkPipelineInputAssemblyStateCreateInfo inputAssembly;
+	VkPipelineViewportStateCreateInfo viewportState;
+	VkPipelineRasterizationStateCreateInfo rasterizer;
+	VkPipelineMultisampleStateCreateInfo multisampling;
+	VkPipelineColorBlendAttachmentState colorBlendAttachment;
+	VkPipelineDepthStencilStateCreateInfo depthStencil;
+	VkPushConstantRange pushConstantRange;
+};
+
 class MGPipelineManager
 {
 public:

@@ -171,9 +171,9 @@ struct MGRendererSemaphores {
 class MGRenderer
 {
 public:
-	uint32_t UNIFORM_BIND_POINT_CAMERA;
-	uint32_t UNIFORM_BIND_POINT_MODEL_MATRIX;
-	uint32_t UNIFORM_BIND_POINT_LIGHT;
+	//uint32_t UNIFORM_BIND_POINT_CAMERA;
+	//uint32_t UNIFORM_BIND_POINT_MODEL_MATRIX;
+	//uint32_t UNIFORM_BIND_POINT_LIGHT;
 
 	//Base Functions
 	MGRenderer();

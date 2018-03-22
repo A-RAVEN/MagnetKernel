@@ -116,5 +116,8 @@
     <ClInclude Include="MGPipeLine.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="MGConfig.h">
+      <Filter>头文件\Kernel</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

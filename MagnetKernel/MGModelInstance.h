@@ -7,7 +7,7 @@ class MGModelInstance
 public:
 	MGModelInstance(MGModel* model = nullptr);
 	~MGModelInstance();
-	void cmdDraw(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, uint32_t modleMatOffset);
+	void cmdDraw(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout);
 	TransformObj transform;
 private:
 

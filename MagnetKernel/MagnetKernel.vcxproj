@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BUILD_OPTIONS.h" />
+    <ClInclude Include="MGConfig.h" />
     <ClInclude Include="MGDebug.h" />
     <ClInclude Include="MGImageLoad.h" />
     <ClInclude Include="MGInstance.h" />

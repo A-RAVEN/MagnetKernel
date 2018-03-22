@@ -1,6 +1,7 @@
 #include "MGPipeLine.h"
 #include "MGShare.h"
 #include "MGRenderer.h"
+#include "MGConfig.h"
 
 
 MGPipeLine::MGPipeLine(MGRenderer* renderer)
@@ -137,7 +138,7 @@ void MGPipeLine::MakePipeline(VkDescriptorSetLayout* DescritorSetLayouts, uint32
 	VkPushConstantRange pushConstantRange = {};
 	pushConstantRange.offset = 0;
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	pushConstantRange.size = OwningRenderer->UNIFORM_BIND_POINT_LIGHT + sizeof(mgm::vec3);
+	pushConstantRange.size = MGConfig::UNIFORM_BIND_POINT_LIGHT + sizeof(mgm::vec3);
 
 	//Pipeline Layout,定义输入的uniform变量
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};

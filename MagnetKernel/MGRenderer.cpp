@@ -12,16 +12,16 @@ const std::vector<uint16_t> indices = {
 
 MGRenderer::MGRenderer()
 {
-	UNIFORM_BIND_POINT_CAMERA = 0;
-	UNIFORM_BIND_POINT_MODEL_MATRIX = UNIFORM_BIND_POINT_CAMERA + sizeof(UniformBufferObject);
-	UNIFORM_BIND_POINT_LIGHT = UNIFORM_BIND_POINT_MODEL_MATRIX + sizeof(mgm::mat4);
+	//UNIFORM_BIND_POINT_CAMERA = 0;
+	//UNIFORM_BIND_POINT_MODEL_MATRIX = UNIFORM_BIND_POINT_CAMERA + sizeof(UniformBufferObject);
+	//UNIFORM_BIND_POINT_LIGHT = UNIFORM_BIND_POINT_MODEL_MATRIX + sizeof(mgm::mat4);
 }
 
 MGRenderer::MGRenderer(MGInstance* instance, MGWindow& window)
 {
-	UNIFORM_BIND_POINT_CAMERA = 0;
-	UNIFORM_BIND_POINT_MODEL_MATRIX = UNIFORM_BIND_POINT_CAMERA + sizeof(UniformBufferObject);
-	UNIFORM_BIND_POINT_LIGHT = UNIFORM_BIND_POINT_MODEL_MATRIX + sizeof(mgm::mat4);
+	//UNIFORM_BIND_POINT_CAMERA = 0;
+	//UNIFORM_BIND_POINT_MODEL_MATRIX = UNIFORM_BIND_POINT_CAMERA + sizeof(UniformBufferObject);
+	//UNIFORM_BIND_POINT_LIGHT = UNIFORM_BIND_POINT_MODEL_MATRIX + sizeof(mgm::mat4);
 	VkSurfaceKHR surface;
 	window.getWindowSurface(&surface);
 	_selectPhysicalDevice(instance, surface);

@@ -5,6 +5,7 @@
 #include "MGModelInstance.h"
 #include "MGPipeLine.h"
 #include "MGMath.h"
+#include "MGConfig.h"
 
 //const std::vector<uint16_t> indices = {
 //	0, 1, 2, 2, 3, 0,
@@ -98,7 +99,7 @@ void MGPipelineManager::cmdExecute(VkCommandBuffer commandBuffer, int frameBuffe
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipelineLayout, 0, 1, &descriptorSets[0], 0, nullptr);
 
 	light = mgm::vec3(50.0f, 50.0f, 50.0f);
-	vkCmdPushConstants(commandBuffer, pipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, OwningRenderer->UNIFORM_BIND_POINT_LIGHT, sizeof(mgm::vec3), &light);
+	vkCmdPushConstants(commandBuffer, pipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, MGConfig::UNIFORM_BIND_POINT_LIGHT, sizeof(mgm::vec3), &light);
 
 	static auto startTime = std::chrono::high_resolution_clock::now();
 	auto currentTime = std::chrono::high_resolution_clock::now();
@@ -106,12 +107,12 @@ void MGPipelineManager::cmdExecute(VkCommandBuffer commandBuffer, int frameBuffe
 	UniformBufferObject ubo = {};
 	ubo.view = glm::lookAt(glm::vec3(0.0f, 60.0f, 40.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.proj = mgm::perspective(glm::radians(45.0f), OwningRenderer->SwapChain->SwapchainExtent.width / (float)OwningRenderer->SwapChain->SwapchainExtent.height, 0.1f, 200.0f);
-	vkCmdPushConstants(commandBuffer, pipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, OwningRenderer->UNIFORM_BIND_POINT_CAMERA, sizeof(UniformBufferObject), &ubo);
+	vkCmdPushConstants(commandBuffer, pipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, MGConfig::UNIFORM_BIND_POINT_CAMERA, sizeof(UniformBufferObject), &ubo);
 
 	instance0->transform.setLocalRotation(time * 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 	instance1->transform.setLocalRotation(time * 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-	instance0->cmdDraw(commandBuffer, pipeline->pipelineLayout, OwningRenderer->UNIFORM_BIND_POINT_MODEL_MATRIX);
-	instance1->cmdDraw(commandBuffer, pipeline->pipelineLayout, OwningRenderer->UNIFORM_BIND_POINT_MODEL_MATRIX);
+	instance0->cmdDraw(commandBuffer, pipeline->pipelineLayout);
+	instance1->cmdDraw(commandBuffer, pipeline->pipelineLayout);
 
 	vkCmdEndRenderPass(commandBuffer);
 }
