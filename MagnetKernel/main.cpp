@@ -6,6 +6,7 @@
 
 #include "Platform.h"
 #include "MGDebug.h"
+#include "MGConfig.h"
 #include "MGInstance.h"
 #include "MGWindow.h"
 #include "MGRenderer.h"
@@ -24,6 +25,7 @@ int main() {
 #endif
 
 		MGInstance instance("Magnet Kernel");
+		MGConfig::initConfig();
 		MGWindow window("Magnet Kernel", 800, 600);
 		MGCheckVKResultERR(window.createWindowSurface(instance.instance),"Failed to create Window Surface");
 		VkSurfaceKHR surface;

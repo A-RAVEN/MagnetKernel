@@ -1,26 +1,12 @@
 #pragma once
-#include<string>
-#include<vector>
-#include"Platform.h"
+#include <string>
+#include <vector>
+#include "Platform.h"
+#include "MGCommonStructs.h"
 
-struct Vertex;
+//struct Vertex;
 class MGRenderer;
-struct CmdBuffers 
-{
-	std::vector<VkCommandBuffer> buffers;
-	std::vector<VkFence> fences;
-	std::vector<bool>need_record;
-	uint8_t index;
-	uint8_t current_index;
-	uint8_t next_index;
-	bool fences_fill = false;
-};
 
-struct BufferStruct
-{
-	VkBuffer Buffer;
-	VkDeviceMemory BufferMemory;
-};
 class MGModel
 {
 public:
@@ -29,7 +15,7 @@ public:
 	bool loadOBJ(const std::string& path);
 	void buildBuffers();
 	void releaseBuffers();
-	VkCommandBuffer GetCurrentCmdBuffer();
+	//VkCommandBuffer GetCurrentCmdBuffer();
 	std::vector<Vertex> VertexList;
 	std::vector<uint32_t> IndexList;
 
@@ -37,13 +23,13 @@ public:
 
 	void MGCmdDraw(VkCommandBuffer PcmdBuffer);
 
-	void NotationRecordCmdBuffer(VkCommandBufferInheritanceInfo inheritanceInfo,VkFence WaitingFence);
+	//void NotationRecordCmdBuffer(VkCommandBufferInheritanceInfo inheritanceInfo,VkFence WaitingFence);
 	//Deprecated
 private:
-	CmdBuffers command_buffers;
+	//CmdBuffers command_buffers;
 	BufferStruct VertexBuffer;
 	BufferStruct IndicesBuffer;
-	void RecordCmdBuffer(VkCommandBufferInheritanceInfo inheritanceInfo);
+	//void RecordCmdBuffer(VkCommandBufferInheritanceInfo inheritanceInfo);
 	//Deprecated
 
 };

@@ -72,6 +72,9 @@
     <ClCompile Include="MGPipeLine.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MGConfig.cpp">
+      <Filter>源文件\Share</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BUILD_OPTIONS.h">
@@ -116,8 +119,11 @@
     <ClInclude Include="MGPipeLine.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="MGCommonStructs.h">
+      <Filter>头文件\Share</Filter>
+    </ClInclude>
     <ClInclude Include="MGConfig.h">
-      <Filter>头文件\Kernel</Filter>
+      <Filter>头文件\Share</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

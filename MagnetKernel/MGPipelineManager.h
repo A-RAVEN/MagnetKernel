@@ -73,7 +73,7 @@ private:
 
 	void _prepareVerticesBuffer();
 	void _prepareTextures(const char* file_path, Texture& tex);//!
-	void _prepareUniformBuffer();
+	//void _prepareUniformBuffer();
 	void _writeDescriptorSet(VkDescriptorSet& set, Texture& tex, Texture& NorTex);//!
 
 	VkShaderModule createShaderModule(const std::vector<char>& code);

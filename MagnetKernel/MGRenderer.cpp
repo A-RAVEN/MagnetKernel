@@ -1,7 +1,7 @@
 #include "MGMath.h"
 #include "MGDebug.h"
+#include "MGConfig.h"
 #include "MGRenderer.h"
-//#include "MGImageLoad.h"
 #include "MGShare.h"
 #include "MGPipelineManager.h"
 
@@ -12,16 +12,10 @@ const std::vector<uint16_t> indices = {
 
 MGRenderer::MGRenderer()
 {
-	//UNIFORM_BIND_POINT_CAMERA = 0;
-	//UNIFORM_BIND_POINT_MODEL_MATRIX = UNIFORM_BIND_POINT_CAMERA + sizeof(UniformBufferObject);
-	//UNIFORM_BIND_POINT_LIGHT = UNIFORM_BIND_POINT_MODEL_MATRIX + sizeof(mgm::mat4);
 }
 
 MGRenderer::MGRenderer(MGInstance* instance, MGWindow& window)
 {
-	//UNIFORM_BIND_POINT_CAMERA = 0;
-	//UNIFORM_BIND_POINT_MODEL_MATRIX = UNIFORM_BIND_POINT_CAMERA + sizeof(UniformBufferObject);
-	//UNIFORM_BIND_POINT_LIGHT = UNIFORM_BIND_POINT_MODEL_MATRIX + sizeof(mgm::mat4);
 	VkSurfaceKHR surface;
 	window.getWindowSurface(&surface);
 	_selectPhysicalDevice(instance, surface);
@@ -227,11 +221,13 @@ void MGRenderer::_selectPhysicalDevice(MGInstance* instance, VkSurfaceKHR window
 		if (!selected)
 		{
 			//Error report
+			MGThrowError(true, "Device queue not capable for rendering !");
 		}
 	}
 	else
 	{
 		//No Device report
+		MGThrowError(true, "Device not capable for rendering !");
 	}
 }
 
@@ -271,7 +267,7 @@ void MGRenderer::_initLogicalDevice()
 	createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 #ifdef _DEBUG
 	const std::vector<const char*> validationLayers = {
-		"VK_LAYER_LUNARG_standard_validation", "VK_LAYER_LUNARG_core_validation"
+		"VK_LAYER_LUNARG_standard_validation"//, "VK_LAYER_LUNARG_core_validation"
 	};
 	MGCheckValidationLayerSupport(validationLayers, EXTENSION_TYPE_DEVICE, PhysicalDevice.device);
 	createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
@@ -425,36 +421,42 @@ void MGRenderer::_recordPrimaryCommandBuffer(uint8_t index)
 
 void MGRenderer::_initSamplers()
 {
-	VkSamplerCreateInfo samplerInfo = {};
-	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerInfo.magFilter = VK_FILTER_LINEAR;
-	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	//VkSamplerCreateInfo samplerInfo = {};
+	//samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	//samplerInfo.magFilter = VK_FILTER_LINEAR;
+	//samplerInfo.minFilter = VK_FILTER_LINEAR;
 
-	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	//samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	//samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	//samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 
-	samplerInfo.anisotropyEnable = VK_TRUE;//当实际像素数量小于图片像素数量时，使用anistropic采样可以避免模糊
-	samplerInfo.maxAnisotropy = 16;//采样点
+	//samplerInfo.anisotropyEnable = VK_TRUE;//当实际像素数量小于图片像素数量时，使用anistropic采样可以避免模糊
+	//samplerInfo.maxAnisotropy = 16;//采样点
 
-	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;//超出范围的颜色
+	//samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;//超出范围的颜色
 
-	samplerInfo.unnormalizedCoordinates = VK_FALSE;//为真时，映射坐标范围为[0,图片长宽]，为假时，映射坐标范围为[0,1]
+	//samplerInfo.unnormalizedCoordinates = VK_FALSE;//为真时，映射坐标范围为[0,图片长宽]，为假时，映射坐标范围为[0,1]
 
-	samplerInfo.compareEnable = VK_FALSE;
-	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+	//samplerInfo.compareEnable = VK_FALSE;
+	//samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 
-	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	samplerInfo.mipLodBias = 0.0f;
-	samplerInfo.minLod = 0.0f;
-	samplerInfo.maxLod = 0.0f;
-	
-	MGCheckVKResultERR(vkCreateSampler(LogicalDevice, &samplerInfo, nullptr, &TextureSamplers.MG_SAMPLER_NORMAL),"Failed to create GM_SAMPLER_NORMAL");
+	//samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	//samplerInfo.mipLodBias = 0.0f;
+	//samplerInfo.minLod = 0.0f;
+	//samplerInfo.maxLod = 0.0f;
+	//
+	//MGCheckVKResultERR(vkCreateSampler(LogicalDevice, &samplerInfo, nullptr, &TextureSamplers.MG_SAMPLER_NORMAL),"Failed to create GM_SAMPLER_NORMAL");
+	loadTextureSampler(MGConfig::MG_SAMPLER_NORMAL);
 }
 
 void MGRenderer::_deInitSamplers()
 {
-	vkDestroySampler(LogicalDevice, TextureSamplers.MG_SAMPLER_NORMAL, nullptr);
+	for (std::map<std::string, VkSampler>::iterator _itr = Samplers.begin(); _itr != Samplers.end(); ++_itr)
+	{
+		vkDestroySampler(LogicalDevice, _itr->second, nullptr);
+	}
+	Samplers.clear();
+	//vkDestroySampler(LogicalDevice, TextureSamplers.MG_SAMPLER_NORMAL, nullptr);
 }
 
 void MGRenderer::_initSemaphores()
@@ -721,6 +723,34 @@ VkRect2D MGRenderer::createFullScreenRect()
 VkFence MGRenderer::getPrimaryCmdBufferFence(int ID)
 {
 	return PrimaryCommandBufferFences[ID];
+}
+
+VkSampler MGRenderer::getTextureSampler(std::string sampler_name)
+{
+	std::map<std::string, VkSampler >::iterator l_it;
+	l_it = Samplers.find(sampler_name);
+	if (l_it != Samplers.end())
+	{
+		return l_it->second;
+	}
+	else
+	{
+		loadTextureSampler(sampler_name);
+		return getTextureSampler(sampler_name);
+	}
+}
+
+void MGRenderer::loadTextureSampler(std::string sampler_name)
+{
+	std::map<std::string, VkSampler >::iterator l_it;
+	l_it = Samplers.find(sampler_name);
+	if (l_it == Samplers.end())
+	{
+		VkSampler new_sampler = VK_NULL_HANDLE;
+		VkSamplerCreateInfo new_sampler_info = MGConfig::FindSamplerInfo(sampler_name).sampler_info;
+		MGCheckVKResultERR(vkCreateSampler(LogicalDevice, &new_sampler_info, nullptr, &new_sampler), "Failed to create GM_SAMPLER_NORMAL");
+		Samplers[sampler_name] = new_sampler;
+	}
 }
 
 MGSwapChain::MGSwapChain(MGRenderer* renderer,MGWindow* window)

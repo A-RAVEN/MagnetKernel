@@ -205,7 +205,7 @@ VkResult MGInstanceSetupDebugReportCallback(VkInstance instance) {
 
 void ERRReport(const char* msg, bool shouldTerminate) {
 	if (shouldTerminate) {
-		throw std::runtime_error("msg");
+		throw std::runtime_error(msg);
 	}
 	else {
 		std::cout << msg << std::endl;

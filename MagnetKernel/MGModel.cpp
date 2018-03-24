@@ -11,41 +11,12 @@
 MGModel::MGModel(MGRenderer* renderer, uint8_t MaxBuffer)
 {
 	OwningRenderer = renderer;
-	command_buffers.index = MaxBuffer;
-	command_buffers.current_index = 0;
-	command_buffers.next_index = 0;
-	command_buffers.buffers.resize(MaxBuffer);
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = renderer->getCommandPool(MG_USE_GRAPHIC);
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-	allocInfo.commandBufferCount = (uint32_t)MaxBuffer;
-
-	if (vkAllocateCommandBuffers(renderer->LogicalDevice, &allocInfo, command_buffers.buffers.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate command buffers of modle!");
-	}
 }
 
 
 MGModel::~MGModel()
 {
 }
-
-//void tmpaddVertex(std::vector<Vertex>* vertexList, std::vector<uint32_t>* indexList, Vertex* newVertex)
-//{
-//	long end = vertexList->size();
-//	long begin = mgm::max<long>(end - 50, 0);
-//	for (uint32_t i = begin; i < end; i++)
-//	{
-//		if (Vertex::Equal(&(*vertexList)[i],newVertex))
-//		{
-//			indexList->push_back(i);
-//			return;
-//		}
-//	}
-//	indexList->push_back(vertexList->size());
-//	vertexList->push_back(*newVertex);
-//}
 
 void addVertex(std::string key, std::map<std::string, uint32_t >* search_map, std::vector<Vertex>* vertexList, std::vector<uint32_t>* indexList, Vertex* newVertex)
 {
@@ -119,10 +90,6 @@ bool MGModel::loadOBJ(const std::string& path)
 				{
 					if (line[k] == ' ')
 						face_type++;
-					//else if (line[k] == '/') 
-					//{
-					//	line[k] = ' ';
-					//}
 				}
 				if (face_type == 3)
 				{
@@ -163,31 +130,6 @@ bool MGModel::loadOBJ(const std::string& path)
 						}
 						addVertex(face_string,&indicesMap,&VertexList, &IndexList, &newVertex);
 					}
-					//s >> head;
-					//for (uint8_t i = 0; i < 3; i++)
-					//{
-					//	uint32_t index;
-					//	Vertex newVertex;
-					//	if (attributes_state[0])
-					//	{
-					//		s >> index;
-					//		index--;
-					//		newVertex.pos = vGroup[index];
-					//	}
-					//	if (attributes_state[1])
-					//	{
-					//		s >> index;
-					//		index--;
-					//		newVertex.texCoord = vtGroup[index];
-					//	}
-					//	if (attributes_state[2])
-					//	{
-					//		s >> index;
-					//		index--;
-					//		newVertex.color = vnGroup[index];
-					//	}
-					//	addVertex(&VertexList, &IndexList, &newVertex);
-					//}
 				}
 				if (face_type == 4)
 				{
@@ -234,45 +176,6 @@ bool MGModel::loadOBJ(const std::string& path)
 					IndexList.push_back(IndexList[zeroIndex + 2]);
 					addVertex(face_strings[3], &indicesMap, &VertexList, &IndexList, &verices[3]);
 					IndexList.push_back(IndexList[zeroIndex]);
-
-					//zeroIndex = IndexList.size() - 6;
-					//for (int i = IndexList.size() - 1; i > zeroIndex; i--)
-					//{
-					//	IndexList.push_back(IndexList[i]);
-					//}
-
-
-					//std::string head;
-					//Vertex verices[4];
-					//for (uint8_t i = 0; i < 4; i++)
-					//{
-					//	uint32_t index;
-					//	if (attributes_state[0])
-					//	{
-					//		s >> index;
-					//		index--;
-					//		verices[i].pos = vGroup[index];
-					//	}
-					//	if (attributes_state[1])
-					//	{
-					//		s >> index;
-					//		index--;
-					//		verices[i].texCoord = vtGroup[index];
-					//	}
-					//	if (attributes_state[2])
-					//	{
-					//		s >> index;
-					//		index--;
-					//		verices[i].color = vnGroup[index];
-					//	}
-					//}
-					//addVertex(&VertexList, &IndexList, &verices[0]);
-					//addVertex(&VertexList, &IndexList, &verices[1]);
-					//addVertex(&VertexList, &IndexList, &verices[2]);
-					//uint32_t zeroIndex = IndexList.size() - 3;
-					//IndexList.push_back(IndexList[zeroIndex + 2]);
-					//addVertex(&VertexList, &IndexList, &verices[3]);
-					//IndexList.push_back(IndexList[zeroIndex]);
 				}
 			}
 		}
@@ -288,46 +191,6 @@ void MGModel::MGCmdDraw(VkCommandBuffer PcmdBuffer)
 	vkCmdBindVertexBuffers(PcmdBuffer, 0, 1, &VertexBuffer.Buffer, offsets);
 	vkCmdBindIndexBuffer(PcmdBuffer, IndicesBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);///////!!!!!!!!!!!ATTENTION:VK_INDEX_TYPE
 	vkCmdDrawIndexed(PcmdBuffer, static_cast<uint32_t>(IndexList.size()), 1, 0, 0, 0);
-}
-
-void MGModel::NotationRecordCmdBuffer(VkCommandBufferInheritanceInfo inheritanceInfo, VkFence WaitingFence)
-{
-	if (!command_buffers.fences_fill)
-	{
-		command_buffers.fences.push_back(WaitingFence);
-		command_buffers.need_record.push_back(true);
-		RecordCmdBuffer(inheritanceInfo);
-	}
-	else
-	{
-		if (command_buffers.need_record[command_buffers.next_index]) {
-			command_buffers.fences[command_buffers.next_index] = WaitingFence;
-			vkWaitForFences(OwningRenderer->LogicalDevice, 1, &WaitingFence, VK_TRUE, 10000);
-			RecordCmdBuffer(inheritanceInfo);
-		}
-	}
-	command_buffers.current_index = command_buffers.next_index;
-	command_buffers.next_index = (command_buffers.next_index + 1) % command_buffers.index;
-	if (command_buffers.next_index == 0)
-	{
-		command_buffers.fences_fill = true;
-	}
-}
-
-void MGModel::RecordCmdBuffer(VkCommandBufferInheritanceInfo inheritanceInfo)
-{
-	VkCommandBufferBeginInfo beginInfo = {};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-	beginInfo.pInheritanceInfo = &inheritanceInfo;
-	vkBeginCommandBuffer(command_buffers.buffers[command_buffers.next_index], &beginInfo);
-
-	VkDeviceSize offsets[] = { 0 };
-	vkCmdBindVertexBuffers(command_buffers.buffers[command_buffers.next_index], 0, 1, &VertexBuffer.Buffer, offsets);
-	vkCmdBindIndexBuffer(command_buffers.buffers[command_buffers.next_index], IndicesBuffer.Buffer, 0, VK_INDEX_TYPE_UINT32);///////!!!!!!!!!!!ATTENTION:VK_INDEX_TYPE
-	vkCmdDrawIndexed(command_buffers.buffers[command_buffers.next_index], static_cast<uint32_t>(IndexList.size()), 1, 0, 0, 0);
-
-	vkEndCommandBuffer(command_buffers.buffers[command_buffers.next_index]);
 }
 
 void MGModel::buildBuffers()
@@ -375,9 +238,4 @@ void MGModel::releaseBuffers()
 	vkFreeMemory(OwningRenderer->LogicalDevice, VertexBuffer.BufferMemory, nullptr);
 	vkDestroyBuffer(OwningRenderer->LogicalDevice, IndicesBuffer.Buffer, nullptr);
 	vkFreeMemory(OwningRenderer->LogicalDevice, IndicesBuffer.BufferMemory, nullptr);
-}
-
-VkCommandBuffer MGModel::GetCurrentCmdBuffer()
-{
-	return command_buffers.buffers[command_buffers.current_index];
 }

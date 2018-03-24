@@ -2,6 +2,7 @@
 #include "MGShare.h"
 #include "MGRenderer.h"
 #include "MGConfig.h"
+#include "MGCommonStructs.h"
 
 
 MGPipeLine::MGPipeLine(MGRenderer* renderer)

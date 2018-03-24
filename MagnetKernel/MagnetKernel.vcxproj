@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MGConfig.cpp" />
     <ClCompile Include="MGDebug.cpp" />
     <ClCompile Include="MGInstance.cpp" />
     <ClCompile Include="MGModel.cpp" />
@@ -50,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BUILD_OPTIONS.h" />
+    <ClInclude Include="MGCommonStructs.h" />
     <ClInclude Include="MGConfig.h" />
     <ClInclude Include="MGDebug.h" />
     <ClInclude Include="MGImageLoad.h" />
