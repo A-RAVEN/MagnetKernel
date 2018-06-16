@@ -28,10 +28,10 @@
     <Filter Include="源文件\Kernel">
       <UniqueIdentifier>{7caf2b40-1f70-4716-8ceb-036f0e56abfb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\Kernel\PipeLine">
+    <Filter Include="头文件\Kernel\Rendering">
       <UniqueIdentifier>{3c39fa44-8e38-41c8-92ce-f1f71240e12d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\Kernel\PipeLine">
+    <Filter Include="源文件\Kernel\Rendering">
       <UniqueIdentifier>{caa2726c-19b9-45e7-b4c1-5802ae379a45}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -61,19 +61,22 @@
       <Filter>源文件\Share</Filter>
     </ClCompile>
     <ClCompile Include="MGRenderingManager.cpp">
-      <Filter>源文件\Kernel\PipeLine</Filter>
+      <Filter>源文件\Kernel\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="MGModelInstance.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MGPipelineManager.cpp">
-      <Filter>源文件\Kernel\PipeLine</Filter>
-    </ClCompile>
-    <ClCompile Include="MGPipeLine.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Kernel\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="MGConfig.cpp">
       <Filter>源文件\Share</Filter>
+    </ClCompile>
+    <ClCompile Include="MGRenderPass.cpp">
+      <Filter>源文件\Kernel\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="MGPipeLine.cpp">
+      <Filter>源文件\Kernel\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -108,22 +111,25 @@
       <Filter>头文件\Share</Filter>
     </ClInclude>
     <ClInclude Include="MGRenderingManager.h">
-      <Filter>头文件\Kernel\PipeLine</Filter>
+      <Filter>头文件\Kernel\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="MGModelInstance.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MGPipelineManager.h">
-      <Filter>头文件\Kernel\PipeLine</Filter>
-    </ClInclude>
-    <ClInclude Include="MGPipeLine.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Kernel\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="MGCommonStructs.h">
       <Filter>头文件\Share</Filter>
     </ClInclude>
     <ClInclude Include="MGConfig.h">
       <Filter>头文件\Share</Filter>
+    </ClInclude>
+    <ClInclude Include="MGRenderPass.h">
+      <Filter>头文件\Kernel\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="MGPipeLine.h">
+      <Filter>头文件\Kernel\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

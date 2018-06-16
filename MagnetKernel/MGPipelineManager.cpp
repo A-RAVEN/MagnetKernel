@@ -58,8 +58,25 @@ void MGPipelineManager::releasePipeline()
 	vkDestroyRenderPass(OwningRenderer->LogicalDevice, renderPass, nullptr);
 }
 
+void MGPipelineManager::initManager()
+{
+}
+
+void MGPipelineManager::makePipeline(VkDescriptorSetLayout * descriptorlayout, int layout_number, VkRenderPass renderpass)
+{
+	//初始化默认管线
+	pipeline = new MGPipeLine(OwningRenderer);
+	pipeline->MakePipeline(descriptorlayout, layout_number, renderpass);
+}
+
+void MGPipelineManager::releaseManager()
+{
+	delete pipeline;
+}
+
 void MGPipelineManager::cmdExecute(VkCommandBuffer commandBuffer, int frameBufferID)
 {
+	//renderpass
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = renderPass;
@@ -76,12 +93,15 @@ void MGPipelineManager::cmdExecute(VkCommandBuffer commandBuffer, int frameBuffe
 
 	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+	//pipeline
 	pipeline->CmdBindPipeline(commandBuffer);
 	vkCmdSetViewport(commandBuffer, 0, 1, &OwningRenderer->createFullScreenViewport());
 	vkCmdSetScissor(commandBuffer, 0, 1, &OwningRenderer->createFullScreenRect());
 
+	//discriptorset
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipelineLayout, 0, 1, &descriptorSets[0], 0, nullptr);
 
+	//pipeline constants
 	light = mgm::vec3(50.0f, 50.0f, 50.0f);
 	vkCmdPushConstants(commandBuffer, pipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, MGConfig::UNIFORM_BIND_POINT_LIGHT, sizeof(mgm::vec3), &light);
 
@@ -93,12 +113,19 @@ void MGPipelineManager::cmdExecute(VkCommandBuffer commandBuffer, int frameBuffe
 	ubo.proj = mgm::perspective(glm::radians(45.0f), OwningRenderer->SwapChain->SwapchainExtent.width / (float)OwningRenderer->SwapChain->SwapchainExtent.height, 0.1f, 200.0f);
 	vkCmdPushConstants(commandBuffer, pipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, MGConfig::UNIFORM_BIND_POINT_CAMERA, sizeof(UniformViewBufferObject), &ubo);
 
+	//model
 	instance0->transform.setLocalRotation(time * 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 	instance1->transform.setLocalRotation(time * 45.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 	instance0->cmdDraw(commandBuffer, pipeline->pipelineLayout);
 	instance1->cmdDraw(commandBuffer, pipeline->pipelineLayout);
 
+	//renderpass
 	vkCmdEndRenderPass(commandBuffer);
+}
+
+MGPipeLine * MGPipelineManager::GetPipeline()
+{
+	return pipeline;
 }
 
 

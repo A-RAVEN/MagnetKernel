@@ -12,7 +12,7 @@
 
 class MGSwapChain;
 class MGPipelineManager;
-
+class MGRenderingManager;
 class MGRenderer
 {
 public:
@@ -39,7 +39,8 @@ public:
 
 	MGSwapChain* SwapChain;
 
-	MGPipelineManager* Pipeline;
+	//MGPipelineManager* Pipeline;
+	MGRenderingManager* RenderManager;
 
 	int GraphicQueueFamilyIndex;
 	int TransferQueueFamilyIndex;
@@ -71,6 +72,7 @@ public:
 	//依据预设名获取采样器，如果找不到采样器会尝试自动创建
 	void loadTextureSampler(std::string sampler_name = MGConfig::MG_SAMPLER_NORMAL);
 	//依据预设名初始化采样器
+	VkShaderModule createShaderModule(const std::vector<char>& code);
 private:
 
 	VkSurfaceKHR OutputSurface;

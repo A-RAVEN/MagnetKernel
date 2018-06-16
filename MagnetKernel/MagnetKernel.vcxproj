@@ -44,6 +44,7 @@
     <ClCompile Include="MGPipeLine.cpp" />
     <ClCompile Include="MGPipelineManager.cpp" />
     <ClCompile Include="MGRenderer.cpp" />
+    <ClCompile Include="MGRenderPass.cpp" />
     <ClCompile Include="MGWindow_Share.cpp" />
     <ClCompile Include="MGWindow_win32.cpp" />
     <ClCompile Include="MGWindow_glfw.cpp" />
@@ -62,6 +63,7 @@
     <ClInclude Include="MGPipeLine.h" />
     <ClInclude Include="MGPipelineManager.h" />
     <ClInclude Include="MGRenderer.h" />
+    <ClInclude Include="MGRenderPass.h" />
     <ClInclude Include="MGShare.h" />
     <ClInclude Include="MGWindow.h" />
     <ClInclude Include="Platform.h" />
@@ -192,11 +194,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\include;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\include;%VULKAN_SDK%\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\lib-vc2015;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\lib-vc2015;%VULKAN_SDK%\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -207,11 +209,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;BUILD_USING_GLFW;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\include;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\include;%VULKAN_SDK%\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\lib-vc2015;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\lib-vc2015;%VULKAN_SDK%\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -222,11 +224,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\include;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\include;%VULKAN_SDK%\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\lib-vc2015;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\lib-vc2015;%VULKAN_SDK%\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -237,11 +239,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;BUILD_USING_GLFW;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\include;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\include;%VULKAN_SDK%\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\lib-vc2015;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\lib-vc2015;%VULKAN_SDK%\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -254,13 +256,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\include;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\include;%VULKAN_SDK%\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\lib-vc2015;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\lib-vc2015;%VULKAN_SDK%\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -273,13 +275,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\include;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\include;%VULKAN_SDK%\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\lib-vc2015;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN32\lib-vc2015;%VULKAN_SDK%\Lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
@@ -293,13 +295,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\include;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\include;%VULKAN_SDK%\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\lib-vc2015;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\lib-vc2015;%VULKAN_SDK%\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -312,13 +314,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\include;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programs\Supports\Graphics\stb-master;F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\include;%VULKAN_SDK%\Include;F:\Programs\Supports\Math\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\lib-vc2015;F:\Programs\Supports\Graphics\VulkanSDK\1.0.57.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Programs\Supports\Graphics\GLFW\glfw-3.2.1.bin.WIN64\lib-vc2015;%VULKAN_SDK%\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>

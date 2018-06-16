@@ -17,13 +17,25 @@
 #include <glm/mat4x4.hpp>
 #include "MGMath.h"
 
+void test()
+{
+	float r = 0.4f;
+	float alpha = r * r;
+	float ndl = 0.01f;
+	while (ndl < 1.0f)
+	{
+		float out = (alpha * alpha) / (3.1415926f * pow((ndl * ndl * (alpha * alpha - 1.0f) + 1.0f), 2.0));
+		std::cout << ndl << "\t" << out << std::endl;
+		ndl += 0.05f;
+	}
+}
 
 int main() {
 	try {
 #ifdef BUILD_USING_GLFW
 		glfwInit();
 #endif
-
+		//test();
 		MGInstance instance("Magnet Kernel");
 		MGConfig::initConfig();
 		MGWindow window("Magnet Kernel", 800, 600);

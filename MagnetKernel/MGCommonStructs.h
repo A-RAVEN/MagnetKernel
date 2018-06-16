@@ -168,3 +168,9 @@ struct MGRendererSemaphores {
 		}
 	}
 };
+
+struct MGPipelineInfo
+{
+	std::string shader_name_vertex;
+	std::string shader_name_fragment;
+};

@@ -3,6 +3,7 @@
 #include "MGConfig.h"
 #include "MGRenderer.h"
 #include "MGShare.h"
+#include "MGRenderingManager.h"
 #include "MGPipelineManager.h"
 
 const std::vector<uint16_t> indices = {
@@ -25,11 +26,12 @@ MGRenderer::MGRenderer(MGInstance* instance, MGWindow& window)
 	_initSamplers();
 	_initSemaphores();
 
-	Pipeline = new MGPipelineManager(this);
-	Pipeline->initPipeline();
+	//Pipeline = new MGPipelineManager(this);
+	//Pipeline->initPipeline();
+	RenderManager = new MGRenderingManager(this);
+	RenderManager->initRenderingManager();
 
-
-	SwapChain->createSwapchainFramebuffers(Pipeline->renderPass, true);
+	SwapChain->createSwapchainFramebuffers(RenderManager->renderPass, true);
 
 	_initPrimaryCommandBuffer();
 
@@ -45,8 +47,10 @@ void MGRenderer::releaseRenderer()
 {
 	//...
 	vkQueueWaitIdle(getQueue(MG_USE_GRAPHIC,0));
-	Pipeline->releasePipeline();
-	delete Pipeline;
+	//Pipeline->releasePipeline();
+	//delete Pipeline;
+	RenderManager->deinitRenderingManager();
+	delete RenderManager;
 	_deInitSemaphores();
 	_deInitSamplers();
 	_deinitRenderFences();
@@ -100,7 +104,7 @@ void MGRenderer::OnWindowResized()
 	vkQueueWaitIdle(getQueue(MG_USE_GRAPHIC, 0));
 	SwapChain->releaseSwapChain();
 	SwapChain->initSwapChain();
-	SwapChain->createSwapchainFramebuffers(Pipeline->renderPass, true);
+	SwapChain->createSwapchainFramebuffers(RenderManager->renderPass, true);
 	//_recordPrimaryCommandBuffers();
 }
 
@@ -414,7 +418,7 @@ void MGRenderer::_recordPrimaryCommandBuffer(uint8_t index)
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 	vkBeginCommandBuffer(PrimaryCommandBuffer, &beginInfo);
 
-	Pipeline->cmdExecute(PrimaryCommandBuffer, index);
+	RenderManager->cmdExecute(PrimaryCommandBuffer, index);
 
 	vkEndCommandBuffer(PrimaryCommandBuffer);
 }
@@ -751,6 +755,21 @@ void MGRenderer::loadTextureSampler(std::string sampler_name)
 		MGCheckVKResultERR(vkCreateSampler(LogicalDevice, &new_sampler_info, nullptr, &new_sampler), "Failed to create GM_SAMPLER_NORMAL");
 		Samplers[sampler_name] = new_sampler;
 	}
+}
+
+VkShaderModule MGRenderer::createShaderModule(const std::vector<char>& code)
+{
+	VkShaderModuleCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+	VkShaderModule shaderModule;
+	if (vkCreateShaderModule(LogicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create shader module!");
+	}
+
+	return shaderModule;
 }
 
 MGSwapChain::MGSwapChain(MGRenderer* renderer,MGWindow* window)

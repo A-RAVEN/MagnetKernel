@@ -4,8 +4,6 @@
 #include <map>
 #include <string>
 
-
-
 namespace MGConfig
 {
 	const static uint32_t UNIFORM_BIND_POINT_CAMERA = 0u;
