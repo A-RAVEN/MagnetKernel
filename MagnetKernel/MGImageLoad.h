@@ -10,6 +10,15 @@ struct Texture {
 	VkDeviceMemory imageMemory;
 	VkImageView imageView;
 	VkSampler sampler;
+	VkDescriptorImageInfo info;
+	VkDescriptorImageInfo* getPImageInfo()
+	{
+		info = {};
+		info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		info.imageView = imageView;
+		info.sampler = sampler;
+		return &info;
+	}
 };
 
 struct MGRawImage {

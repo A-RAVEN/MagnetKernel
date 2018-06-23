@@ -4,6 +4,7 @@
 #include "MGModelInstance.h"
 #include "MGPipelineManager.h"
 #include "MGPipeline.h"
+#include "DescriptorManager.h"
 
 
 MGRenderingManager::MGRenderingManager(MGRenderer * renderer)
@@ -20,20 +21,32 @@ MGRenderingManager::~MGRenderingManager()
 void MGRenderingManager::initRenderingManager()
 {
 	_prepareRenderpass();
-	_prepareDescriptorSetLayout();
+	//_prepareDescriptorSetLayout();//old
+
+	descriptor_manager = new DescriptorManager(OwningRenderer);
+	descriptor_manager->initManager();
+	MGConfig::MGDataBindingType types[] = { MGConfig::DATA_BINDING_TYPE_COMBINED_IMAGE, MGConfig::DATA_BINDING_TYPE_COMBINED_IMAGE };
+	descriptor_manager->addDescriptorSetLayout(&types[0], 2);
+
 	//初始化pipeline manager
 	pipeline_manager = new MGPipelineManager(OwningRenderer);
-	pipeline_manager->makePipeline(&descriptorSetLayout, 1, renderPass);
+	pipeline_manager->makePipeline(&(descriptor_manager->descriptorSetLayouts[0]), 1, renderPass);
 
-	_createDescriptorPool();
-	descriptorSets.resize(2);
-	_allocateDescriptorSet(descriptorSets.size(), descriptorSets.data());
+
+	descriptor_manager->allocateDescriptorSet(0, 1);
+
+	//_createDescriptorPool();//old
+	//descriptorSets.resize(2);//old
+	//_allocateDescriptorSet(descriptorSets.size(), descriptorSets.data());//old
 
 	_prepareVerticesBuffer();
 	_prepareTextures("textures/Grey.bmp", texture);
 	_prepareTextures("textures/EarthNor.bmp", texture2);
 
-	_writeDescriptorSet(descriptorSets[0], texture, texture2);
+	descriptor_manager->pushCombinedImageSampler(0, 0, texture2);
+	descriptor_manager->pushCombinedImageSampler(0, 1, texture);
+	descriptor_manager->writeDescriptorSets();
+	//_writeDescriptorSet(descriptorSets[0], texture, texture2);//old
 }
 
 void MGRenderingManager::deinitRenderingManager()
@@ -43,13 +56,17 @@ void MGRenderingManager::deinitRenderingManager()
 	_releaseTexture(texture);
 	_releaseTexture(texture2);
 
-	vkDestroyDescriptorPool(OwningRenderer->LogicalDevice, descriptorPool, nullptr);
+
+	//vkDestroyDescriptorPool(OwningRenderer->LogicalDevice, descriptorPool, nullptr);
 
 	//释放pipeline manager
 	pipeline_manager->releaseManager();
 	delete pipeline_manager;
 
-	vkDestroyDescriptorSetLayout(OwningRenderer->LogicalDevice, descriptorSetLayout, nullptr);
+	descriptor_manager->releaseManager();
+	delete descriptor_manager;
+
+	//vkDestroyDescriptorSetLayout(OwningRenderer->LogicalDevice, descriptorSetLayout, nullptr);
 	vkDestroyRenderPass(OwningRenderer->LogicalDevice, renderPass, nullptr);
 }
 
@@ -79,7 +96,8 @@ void MGRenderingManager::cmdExecute(VkCommandBuffer commandBuffer, int frameBuff
 	vkCmdSetScissor(commandBuffer, 0, 1, &OwningRenderer->createFullScreenRect());
 	///inputs
 	////descriptors
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, (pipeline_manager->GetPipeline())->pipelineLayout, 0, 1, &descriptorSets[0], 0, nullptr);
+	//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, (pipeline_manager->GetPipeline())->pipelineLayout, 0, 1, &descriptorSets[0], 0, nullptr);//old
+	descriptor_manager->cmdBindSet(commandBuffer, (pipeline_manager->GetPipeline())->pipelineLayout, 0);
 	////push constants
 	mgm::vec3 light = mgm::vec3(50.0f, 50.0f, 50.0f);
 	vkCmdPushConstants(commandBuffer, (pipeline_manager->GetPipeline())->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, MGConfig::UNIFORM_BIND_POINT_LIGHT, sizeof(mgm::vec3), &light);
@@ -168,67 +186,6 @@ void MGRenderingManager::_prepareRenderpass()
 	MGCheckVKResultERR(vkCreateRenderPass(OwningRenderer->LogicalDevice, &renderPassInfo, nullptr, &renderPass), "RenderPass创建失败！");
 }
 
-void MGRenderingManager::_prepareDescriptorSetLayout()
-{
-	//法线贴图的绑定接口
-	VkDescriptorSetLayoutBinding samplerLayoutBindingNormal = {};
-	samplerLayoutBindingNormal.binding = 0;
-	samplerLayoutBindingNormal.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;//imageSampler
-	samplerLayoutBindingNormal.descriptorCount = 1;
-	samplerLayoutBindingNormal.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;//使用此image的着色器
-	samplerLayoutBindingNormal.pImmutableSamplers = nullptr;
-	//漫反射贴图的绑定接口
-	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-	samplerLayoutBinding.binding = 1;
-	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;//imageSampler
-	samplerLayoutBinding.descriptorCount = 1;
-	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;//使用此image的着色器
-	samplerLayoutBinding.pImmutableSamplers = nullptr;
-
-	std::vector<VkDescriptorSetLayoutBinding> bindings = { samplerLayoutBindingNormal, samplerLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-	layoutInfo.pBindings = bindings.data();
-
-	if (vkCreateDescriptorSetLayout(OwningRenderer->LogicalDevice, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create descriptor set layout!");
-	}
-}
-
-void MGRenderingManager::_createDescriptorPool()
-{
-	std::vector<VkDescriptorPoolSize> poolSizes = {};
-	poolSizes.resize(2);
-	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSizes[0].descriptorCount = 1;////////??????????????
-	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[1].descriptorCount = 10;////////??????????????
-
-	VkDescriptorPoolCreateInfo poolInfo = {};
-	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());;
-	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = 10;////////??????????????
-
-	if (vkCreateDescriptorPool(OwningRenderer->LogicalDevice, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create descriptor pool!");
-	}
-}
-
-void MGRenderingManager::_allocateDescriptorSet(uint32_t SetCount, VkDescriptorSet * sets)
-{
-	VkDescriptorSetLayout layouts[] = { descriptorSetLayout,descriptorSetLayout };
-	VkDescriptorSetAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = SetCount;
-	allocInfo.pSetLayouts = layouts;
-
-	if (vkAllocateDescriptorSets(OwningRenderer->LogicalDevice, &allocInfo, sets) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor set!");
-	}
-}
 
 void MGRenderingManager::_prepareVerticesBuffer()
 {
@@ -285,38 +242,4 @@ void MGRenderingManager::_releaseTexture(Texture & tex)
 	vkDestroyImageView(OwningRenderer->LogicalDevice, tex.imageView, nullptr);
 	vkDestroyImage(OwningRenderer->LogicalDevice, tex.image, nullptr);
 	vkFreeMemory(OwningRenderer->LogicalDevice, tex.imageMemory, nullptr);
-}
-
-void MGRenderingManager::_writeDescriptorSet(VkDescriptorSet & set, Texture & tex, Texture & NorTex)
-{
-	VkDescriptorImageInfo imageInfo = {};
-	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	imageInfo.imageView = tex.imageView;
-	imageInfo.sampler = tex.sampler;
-
-	VkDescriptorImageInfo NorimageInfo = {};
-	NorimageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	NorimageInfo.imageView = NorTex.imageView;
-	NorimageInfo.sampler = NorTex.sampler;
-
-	std::vector<VkWriteDescriptorSet> descriptorWrites = {};
-	descriptorWrites.resize(2);
-
-	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descriptorWrites[0].dstSet = set;
-	descriptorWrites[0].dstBinding = 1;
-	descriptorWrites[0].dstArrayElement = 0;
-	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	descriptorWrites[0].descriptorCount = 1;
-	descriptorWrites[0].pImageInfo = &imageInfo;
-
-	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descriptorWrites[1].dstSet = set;
-	descriptorWrites[1].dstBinding = 0;
-	descriptorWrites[1].dstArrayElement = 0;
-	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	descriptorWrites[1].descriptorCount = 1;
-	descriptorWrites[1].pImageInfo = &NorimageInfo;
-
-	vkUpdateDescriptorSets(OwningRenderer->LogicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }

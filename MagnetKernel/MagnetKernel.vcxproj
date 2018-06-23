@@ -35,6 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DescriptorManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MGConfig.cpp" />
     <ClCompile Include="MGDebug.cpp" />
@@ -52,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BUILD_OPTIONS.h" />
+    <ClInclude Include="DescriptorManager.h" />
     <ClInclude Include="MGCommonStructs.h" />
     <ClInclude Include="MGConfig.h" />
     <ClInclude Include="MGDebug.h" />

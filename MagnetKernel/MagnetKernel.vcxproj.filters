@@ -34,6 +34,12 @@
     <Filter Include="源文件\Kernel\Rendering">
       <UniqueIdentifier>{caa2726c-19b9-45e7-b4c1-5802ae379a45}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Kernel\Rendering\SubManagers">
+      <UniqueIdentifier>{bc918142-232f-4164-bd87-480060080476}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Kernel\Rendering\SubManagers">
+      <UniqueIdentifier>{5e50990d-226a-40e3-aceb-2991d39deed0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -66,9 +72,6 @@
     <ClCompile Include="MGModelInstance.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MGPipelineManager.cpp">
-      <Filter>源文件\Kernel\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="MGConfig.cpp">
       <Filter>源文件\Share</Filter>
     </ClCompile>
@@ -77,6 +80,12 @@
     </ClCompile>
     <ClCompile Include="MGPipeLine.cpp">
       <Filter>源文件\Kernel\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="MGPipelineManager.cpp">
+      <Filter>源文件\Kernel\Rendering\SubManagers</Filter>
+    </ClCompile>
+    <ClCompile Include="DescriptorManager.cpp">
+      <Filter>源文件\Kernel\Rendering\SubManagers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,9 +125,6 @@
     <ClInclude Include="MGModelInstance.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MGPipelineManager.h">
-      <Filter>头文件\Kernel\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="MGCommonStructs.h">
       <Filter>头文件\Share</Filter>
     </ClInclude>
@@ -130,6 +136,12 @@
     </ClInclude>
     <ClInclude Include="MGPipeLine.h">
       <Filter>头文件\Kernel\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="MGPipelineManager.h">
+      <Filter>头文件\Kernel\Rendering\SubManagers</Filter>
+    </ClInclude>
+    <ClInclude Include="DescriptorManager.h">
+      <Filter>头文件\Kernel\Rendering\SubManagers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
